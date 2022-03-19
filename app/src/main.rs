@@ -2,18 +2,24 @@ mod args;
 
 fn main() {
     use {
-        std::fs::OpenOptions,
         args::{Args, Command},
         clap::Parser,
         library::{
             package::{Build, Metadata},
             Archive,
         },
+        std::fs::OpenOptions,
     };
 
     let args = Args::parse();
     match args.command {
-        Command::Read { path } => println!("{}", Archive::open(path, OpenOptions::new().read(true)).unwrap().read().unwrap()),
+        Command::Read { path } => println!(
+            "{}",
+            Archive::open(path, OpenOptions::new().read(true))
+                .unwrap()
+                .read()
+                .unwrap()
+        ),
         Command::Create {
             path,
             name,

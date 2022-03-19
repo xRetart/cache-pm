@@ -1,6 +1,14 @@
 use {
-    std::{fs::{File, OpenOptions}, path::Path, io},
-    crate::{error, Package, package::{Metadata, Build, Spec}},
+    crate::{
+        error,
+        package::{Build, Metadata, Spec},
+        Package,
+    },
+    std::{
+        fs::{File, OpenOptions},
+        io,
+        path::Path,
+    },
 };
 
 pub struct Archive {
@@ -15,7 +23,8 @@ impl Archive {
     }
 
     pub fn open<P>(path: P, options: &OpenOptions) -> io::Result<Self>
-    where P: AsRef<Path>
+    where
+        P: AsRef<Path>,
     {
         options.open(path).map(|file| Self { file })
     }
@@ -23,14 +32,18 @@ impl Archive {
     where
         P: AsRef<Path>,
     {
-        let mut new = Self { file: File::create(path).map_err(error::Write::Io)? };
+        let mut new = Self {
+            file: File::create(path).map_err(error::Write::Io)?,
+        };
         new.write(&Package::empty(metadata)).map(|()| new)
     }
     pub fn read(&mut self) -> Result<Package, error::Read> {
         use {rkyv::from_bytes, std::io::Read};
 
         let mut buffer = Vec::new();
-        self.file.read_to_end(&mut buffer).map_err(error::Read::Io)?;
+        self.file
+            .read_to_end(&mut buffer)
+            .map_err(error::Read::Io)?;
         from_bytes(&buffer).map_err(error::Read::Deserialize)
     }
     pub fn append(&mut self, spec: Spec, build: Build) -> Result<(), error::Append> {
@@ -40,7 +53,10 @@ impl Archive {
 
         package.distributions.insert(spec, build);
 
-        self.file.rewind().map_err(error::Write::Io).map_err(error::Append::Write)?;
+        self.file
+            .rewind()
+            .map_err(error::Write::Io)
+            .map_err(error::Append::Write)?;
         self.write(&package).map_err(error::Append::Write)
     }
 }

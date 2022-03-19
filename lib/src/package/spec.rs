@@ -1,11 +1,11 @@
 use {
+    bytecheck::CheckBytes,
+    num_derive::FromPrimitive,
+    rkyv::{Archive, Deserialize, Serialize},
     std::{
         fmt::{self, Display, Formatter},
         str::FromStr,
     },
-    bytecheck::CheckBytes,
-    num_derive::FromPrimitive,
-    rkyv::{Archive, Deserialize, Serialize},
 };
 
 #[derive(PartialEq, Eq, Hash, Debug, Archive, Deserialize, Serialize)]
@@ -22,7 +22,7 @@ impl Display for Spec {
 impl FromStr for Spec {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.parse::<Arch>().map(|arch| Self { arch: arch as u8})
+        s.parse::<Arch>().map(|arch| Self { arch: arch as u8 })
     }
 }
 
