@@ -17,20 +17,20 @@ pub enum Command {
     Create {
         path: String,
         name: String,
-        version: String,
+        vers: String,
     },
 
     /// Appends a build to an existing package
     Append {
         path: String,
-        specification: String,
         build: String,
+        spec: String,
     },
 
     /// Unpacks the build of a package associated with its specification to destination
     Unpack {
         path: String,
-        destination: String,
-        specification: String,
+        dest: String,
+        spec: String,
     },
 }

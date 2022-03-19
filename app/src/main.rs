@@ -1,59 +1,34 @@
 mod args;
+mod commands;
+mod error;
+
+pub use error::Error;
 
 fn main() {
+    use quit::with_code;
+
+    let code = match result_main() {
+        Ok(()) => 0,
+        Err(e) => {
+            eprintln!("ERROR: {}", e);
+            1
+        }
+    };
+
+    with_code(code);
+}
+fn result_main() -> Result<(), Error> {
     use {
         args::{Args, Command},
         clap::Parser,
-        library::{
-            package::{Build, Metadata},
-            Archive,
-        },
-        std::fs::OpenOptions,
+        commands::{append, create, read, unpack},
     };
 
     let args = Args::parse();
     match args.command {
-        Command::Read { path } => println!(
-            "{}",
-            Archive::open(path, OpenOptions::new().read(true))
-                .unwrap()
-                .read()
-                .unwrap()
-        ),
-        Command::Create {
-            path,
-            name,
-            version,
-        } => {
-            Archive::create(
-                path,
-                Metadata {
-                    name,
-                    version: version.parse().unwrap(),
-                },
-            )
-            .unwrap();
-        }
-        Command::Append {
-            path,
-            specification,
-            build,
-        } => Archive::open(path, OpenOptions::new().read(true).write(true))
-            .unwrap()
-            .append(
-                specification.parse().unwrap(),
-                Build::encode(build, 9).unwrap(),
-            )
-            .unwrap(),
-        Command::Unpack {
-            path,
-            destination,
-            specification,
-        } => Archive::open(path, OpenOptions::new().read(true))
-            .unwrap()
-            .read()
-            .unwrap()
-            .unpack(&specification.parse().unwrap(), destination)
-            .unwrap(),
+        Command::Read { path } => read(path),
+        Command::Create { path, name, vers } => create(path, name, vers),
+        Command::Append { path, spec, build } => append(path, spec, build),
+        Command::Unpack { path, dest, spec } => unpack(path, dest, spec),
     }
 }

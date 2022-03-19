@@ -1,4 +1,5 @@
 use {
+    crate::error::ParseArch,
     bytecheck::CheckBytes,
     num_derive::FromPrimitive,
     rkyv::{Archive, Deserialize, Serialize},
@@ -26,7 +27,8 @@ impl Display for Spec {
     }
 }
 impl FromStr for Spec {
-    type Err = ();
+    type Err = ParseArch;
+
     /// Parses a string to a `Spec` using the same format used for displaying the `Spec`.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         s.parse::<Arch>().map(|arch| Self { arch: arch as u8 })
@@ -52,7 +54,7 @@ impl Display for Arch {
     }
 }
 impl FromStr for Arch {
-    type Err = ();
+    type Err = ParseArch;
 
     /// Parses a `&str` to an `Arch`.
     /// The string `s` corresponds directly to the name of the variant.
@@ -65,7 +67,7 @@ impl FromStr for Arch {
             "PPC64" => Ok(Self::PPC64),
             "PPC" => Ok(Self::PPC),
             "Sparc" => Ok(Self::Sparc),
-            _ => Err(()),
+            _ => Err(ParseArch::Unknown),
         }
     }
 }
