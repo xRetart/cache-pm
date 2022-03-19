@@ -17,7 +17,7 @@ impl Build {
     /// Returns `std::io::Error` when opening the encoder `zstd::Encoder`,
     /// inserting the directory at `path` into the `tar::Builder` or
     /// finishing the `tar::Builder` failed.
-    pub fn archive<P>(path: P, compression: i32) -> io::Result<Self>
+    pub fn encode<P>(path: P, compression: i32) -> io::Result<Self>
     where
         P: AsRef<Path>,
     {

@@ -42,7 +42,7 @@ fn main() {
             .unwrap()
             .append(
                 specification.parse().unwrap(),
-                Build::archive(build, 9).unwrap(),
+                Build::encode(build, 9).unwrap(),
             )
             .unwrap(),
         Command::Unpack {
