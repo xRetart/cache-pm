@@ -8,7 +8,6 @@ use {
 #[archive_attr(derive(CheckBytes))]
 pub struct Build {
     data: Vec<u8>,
-    compression: i32,
 }
 impl Build {
     pub fn archive<P>(path: P, compression: i32) -> io::Result<Self>
@@ -24,13 +23,13 @@ impl Build {
 
         // add path to archive
         let path = &path;
-        builder.append_dir(path, path)?;
+        builder.append_dir_all(path, path)?;
 
         // finish streams and unpack data
         builder
             .into_inner()
             .and_then(Encoder::finish)
-            .map(|data| Self { data, compression })
+            .map(|data| Self { data })
     }
     pub fn decode<P>(&self, dest: P) -> io::Result<()>
     where
