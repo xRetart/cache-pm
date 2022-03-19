@@ -8,19 +8,25 @@ use {
     },
 };
 
+/// Contains general information about a `Package`
 #[derive(Archive, Deserialize, Serialize, PartialEq, Debug)]
 #[archive_attr(derive(CheckBytes))]
 pub struct Metadata {
+    /// Name of the `Package`
     pub name: String,
+
+    /// Version of the `Package`
     pub version: Version,
 }
 impl Display for Metadata {
+    /// Pretty-prints the `Metadata` with the following format:
+    /// <name> (v<version>)
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{} (v{})", self.name, self.version)
     }
 }
 
-// e.g. 1.3.22-alpha
+/// A version in the `SemVer` format
 #[derive(Archive, Deserialize, Serialize, PartialEq, Debug)]
 #[archive_attr(derive(CheckBytes))]
 pub struct Version {
@@ -29,12 +35,20 @@ pub struct Version {
     pub patch: u32,
 }
 impl Display for Version {
+    /// Pretty-prints the `Version` with the following format:
+    /// <major>.<minor>.<patch>
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{}.{}.{}", self.major, self.minor, self.patch)
     }
 }
 impl FromStr for Version {
     type Err = ParseIntError;
+
+    /// Parses a `Version` from a string from the same format in that it is displayed.
+    /// If a version number is omitted then all following numbers are assumed to be 0 (e.g. "2.4" = "2.4.0").
+    /// # Errors
+    /// Returns `std::num::ParseIntError` when `s` contains non digit characters (except
+    /// the appropriate dots).
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let mut split = s.split('.');
         let mut next = move || split.next().map_or(Ok(0), str::parse);
