@@ -10,23 +10,23 @@ use {
 #[derive(PartialEq, Eq, Hash, Debug, Archive, Deserialize, Serialize)]
 #[archive_attr(derive(PartialEq, Eq, Hash, CheckBytes))]
 pub struct Spec {
-    pub architecture: Architecture,
+    pub arch: Arch,
 }
 impl Display for Spec {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_fmt(format_args!("{}", self.architecture))
+        f.write_fmt(format_args!("{}", self.arch))
     }
 }
 impl FromStr for Spec {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        s.parse().map(|architecture| Self { architecture })
+        s.parse().map(|arch| Self { arch })
     }
 }
 
 #[derive(Archive, Deserialize, Serialize, PartialEq, Eq, Hash, Debug)]
 #[archive_attr(derive(PartialEq, Eq, Hash, CheckBytes))]
-pub enum Architecture {
+pub enum Arch {
     X86_64,
     X86,
     ARM64,
@@ -36,12 +36,12 @@ pub enum Architecture {
     Alpha,
     Sparc,
 }
-impl Display for Architecture {
+impl Display for Arch {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{:#?}", self)
     }
 }
-impl FromStr for Architecture {
+impl FromStr for Arch {
     type Err = ();
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
