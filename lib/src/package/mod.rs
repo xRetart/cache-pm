@@ -1,4 +1,4 @@
-pub mod build;
+pub mod dir;
 pub mod metadata;
 pub mod spec;
 
@@ -9,10 +9,11 @@ use {
     std::{
         collections::HashMap,
         fmt::{self, Display, Formatter},
+        io,
         path::Path,
     },
 };
-pub use {build::Build, metadata::Metadata, spec::Spec};
+pub use {dir::Dir, metadata::Metadata, spec::Spec};
 
 /// A `Package` contains software that can be distributed and installed
 #[derive(Archive, Deserialize, Serialize, Debug)]
@@ -22,16 +23,21 @@ pub struct Package {
     pub metadata: Metadata,
 
     /// Map of `Spec`'s pointing to their associated `Build`
-    pub distributions: HashMap<Spec, Build>,
+    pub distributions: HashMap<Spec, Dir>,
+
+    /// Source code
+    pub src: Dir,
 }
 impl Package {
     /// Creates a `Package` with `metadata` containing no `Dist`'s
-    #[must_use]
-    pub fn empty(metadata: Metadata) -> Self {
-        Self {
+    /// # Errors
+    /// Returns `std::io::Erorr` when encoding the directory at path `src` failed.
+    pub fn empty(metadata: Metadata, src: String) -> io::Result<Self> {
+        Ok(Self {
             metadata,
             distributions: HashMap::new(),
-        }
+            src: Dir::encode(src, 9)?,
+        })
     }
 
     /// Decodes the compressed `Build` into a directory with the path `dest`
@@ -52,10 +58,11 @@ impl Display for Package {
     /// Pretty-prints the `Package` with the following format:
     /// <metadata>
     ///
+    /// source: <source>
     /// distributions:
-    ///     [distribution]...
+    ///     \[distribution\]...
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}", self.metadata)?;
+        write!(f, "{}\n\nsource: {}", self.metadata, self.src.path)?;
 
         f.write_str("\n\ndistributions:")?;
         for spec in self.distributions.keys() {

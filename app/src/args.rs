@@ -16,6 +16,7 @@ pub enum Command {
     /// Creates a new, empty package
     Create {
         path: String,
+        src: String,
         name: String,
         vers: String,
     },
@@ -33,4 +34,7 @@ pub enum Command {
         dest: String,
         spec: String,
     },
+
+    /// Extract the source of a package
+    Extract { path: String },
 }

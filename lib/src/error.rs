@@ -55,6 +55,20 @@ impl Display for Append {
         }
     }
 }
+/// An Error that can occur while reading an archive.
+#[derive(Debug)]
+pub enum Extract {
+    Read(Read),
+    Io(io::Error),
+}
+impl Display for Extract {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Self::Read(e) => write!(f, "reading: {}", e),
+            Self::Io(e) => write!(f, "io: {}", e),
+        }
+    }
+}
 
 /// An Error that can occur while unpacking an archive.
 #[derive(Debug)]
