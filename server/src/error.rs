@@ -1,5 +1,5 @@
 use {
-    library::error::{Append, Extract, ParseArch, Read, Unpacking, Write},
+    library::error::{Append, Extract, ParseArch, Read, Unpack, UnpackArchive, Write},
     std::{
         fmt::{self, Display, Formatter},
         io,
@@ -13,7 +13,8 @@ pub enum Error {
     Write(Write),
     Append(Append),
     Extract(Extract),
-    Unpack(Unpacking),
+    Unpack(Unpack),
+    UnpackArchive(UnpackArchive),
     ParseArch(ParseArch),
     ParseVersion(ParseIntError),
 }
@@ -26,6 +27,7 @@ impl Display for Error {
             Self::Append(e) => write!(f, "appending: {}", e),
             Self::Extract(e) => write!(f, "extracting: {}", e),
             Self::Unpack(e) => write!(f, "unpacking: {}", e),
+            Self::UnpackArchive(e) => write!(f, "unpacking archive: {}", e),
             Self::ParseArch(e) => write!(f, "parsing architecture: {}", e),
             Self::ParseVersion(e) => write!(f, "parsing version: {}", e),
         }

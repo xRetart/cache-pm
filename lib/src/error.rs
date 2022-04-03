@@ -72,15 +72,29 @@ impl Display for Extract {
 
 /// An Error that can occur while unpacking an archive.
 #[derive(Debug)]
-pub enum Unpacking {
+pub enum Unpack {
     SpecNotFound,
     Io(io::Error),
 }
-impl Display for Unpacking {
+impl Display for Unpack {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             Self::SpecNotFound => f.write_str("specification is not available."),
             Self::Io(e) => write!(f, "io: {}", e),
+        }
+    }
+}
+/// An Error that can occur while unpacking an archive.
+#[derive(Debug)]
+pub enum UnpackArchive {
+    Read(Read),
+    Package(Unpack),
+}
+impl Display for UnpackArchive {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Self::Read(e) => write!(f, "read: {}", e),
+            Self::Package(e) => write!(f, "package: {}", e),
         }
     }
 }

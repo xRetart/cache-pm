@@ -2,3 +2,9 @@
 name = "dist"
 version = "0.1.0"
 edition = "2021"
+
+[dependencies]
+library = { path = "../lib" }
+clap = { version = "3.1.6", features = ["derive"] }
+quit = "1.1.4"
+tempfile = "3.3.0"

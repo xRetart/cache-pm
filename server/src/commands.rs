@@ -42,23 +42,18 @@ where
         )
         .map_err(Error::Append)
 }
-pub fn unpack<P, S, D>(path: P, dest: D, spec: S) -> Result<(), Error>
+pub fn unpack<P, D, S>(path: P, dest: D, spec: S) -> Result<(), Error>
 where
     P: AsRef<Path>,
+    D: AsRef<Path>,
     S: AsRef<str>,
-    D: AsRef<str>,
 {
     use {library::Archive, std::fs::OpenOptions};
 
     Archive::open(path, OpenOptions::new().read(true))
         .map_err(Error::Io)?
-        .read()
-        .map_err(Error::Read)?
-        .unpack(
-            &spec.as_ref().parse().map_err(Error::ParseArch)?,
-            dest.as_ref(),
-        )
-        .map_err(Error::Unpack)
+        .unpack(dest, &spec.as_ref().parse().map_err(Error::ParseArch)?)
+        .map_err(Error::UnpackArchive)
 }
 pub fn extract<P>(path: P) -> Result<(), Error>
 where
