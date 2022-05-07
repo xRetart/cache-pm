@@ -17,7 +17,7 @@ where
     read_dir(path)
         .map_err(error::Read::Io)?
         .filter_map(Result::ok)
-        .find(|entry| entry.file_name() == name)
+        .find(|entry| entry.file_name() == (name.to_owned() + ".pkg").as_str())
         .map(|entry| read_pkg(entry.path()))
         .transpose()
 }

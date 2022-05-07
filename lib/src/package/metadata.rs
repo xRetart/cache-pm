@@ -1,5 +1,6 @@
 use {
     bytecheck::CheckBytes,
+    crate::error::ParseMetadata,
     rkyv::{Archive, Deserialize, Serialize},
     std::{
         fmt::{self, Display, Formatter},
@@ -23,6 +24,24 @@ impl Display for Metadata {
     /// <name> (v<version>)
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         write!(f, "{} (v{})", self.name, self.version)
+    }
+}
+impl FromStr for Metadata {
+    type Err = ParseMetadata;
+
+    fn from_str(raw: &str) -> Result<Self, Self::Err> {
+        const SEPARATOR: char = ':';
+
+        raw
+            .split_once(SEPARATOR)
+            .ok_or(ParseMetadata::Format)
+            .and_then(
+                |(name, version)|
+                    version
+                        .parse()
+                        .map_err(ParseMetadata::Version)
+                        .map(|version| Self { name: name.to_owned(), version })
+            )
     }
 }
 

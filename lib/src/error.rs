@@ -1,10 +1,11 @@
 use {
-    crate::package::Package,
+    crate::package::{metadata::Version, Package},
     rkyv::{
         ser::serializers::{AllocScratchError, CompositeSerializerError, SharedSerializeMapError},
         validation::validators::FromBytesError,
     },
     std::{
+        str::FromStr,
         convert::Infallible,
         fmt::{self, Display, Formatter},
         io,
@@ -79,7 +80,7 @@ pub enum Unpack {
 impl Display for Unpack {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
-            Self::SpecNotFound => f.write_str("specification is not available."),
+            Self::SpecNotFound => write!(f, "specification is not available."),
             Self::Io(e) => write!(f, "io: {}", e),
         }
     }
@@ -106,6 +107,20 @@ pub enum ParseArch {
 }
 impl Display for ParseArch {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        f.write_str("Unknown architecture.")
+        write!(f, "Unknown architecture.")
+    }
+}
+/// An error that can occur while parsing an architecture.
+#[derive(Debug)]
+pub enum ParseMetadata {
+    Version(<Version as FromStr>::Err),
+    Format,
+}
+impl Display for ParseMetadata {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Self::Version(e) => write!(f, "version: {}", e),
+            Self::Format => write!(f, "version format incorrect")
+        }
     }
 }

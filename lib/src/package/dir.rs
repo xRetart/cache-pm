@@ -54,4 +54,8 @@ impl Dir {
         archive.into_inner().finish();
         Ok(())
     }
+
+    pub fn data(&self) -> &[u8] {
+        &self.data
+    }
 }

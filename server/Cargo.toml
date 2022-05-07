@@ -6,4 +6,5 @@ edition = "2021"
 [dependencies]
 library = { path = "../lib" }
 clap = { version = "3.1.6", features = ["derive"] }
+rkyv = { version = "0.7.36", features = ["alloc"] }
 quit = "1.1.4"
