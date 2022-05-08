@@ -8,11 +8,8 @@ use {
 #[derive(Archive, Deserialize, Serialize, PartialEq, Debug)]
 #[archive_attr(derive(CheckBytes))]
 pub struct Dir {
-    /// Path of the root of the directory
-    pub path: String,
-
     /// The buffer for all data
-    data: Vec<u8>,
+    pub data: Vec<u8>,
 }
 impl Dir {
     /// Archives the directory at `path` and compresses it with a of compression level `compression`.
@@ -20,23 +17,23 @@ impl Dir {
     /// Returns `std::io::Error` when opening the encoder `zstd::Encoder`,
     /// inserting the directory at `path` into the `tar::Builder` or
     /// finishing the `tar::Builder` failed.
-    pub fn encode(path: String, compression: i32) -> io::Result<Self> {
+    pub fn encode<P: AsRef<Path>>(path: P, compression: i32) -> io::Result<Self> {
         use {tar::Builder, zstd::Encoder};
 
+        let path = path.as_ref();
         let buffer = Vec::new();
 
         // create archive builder with compression
         let mut builder = Builder::new(Encoder::new(buffer, compression)?);
 
         // add path to archive
-        let rpath = &path;
-        builder.append_dir_all(rpath, rpath)?;
+        builder.append_dir_all(".", path)?;
 
         // finish streams and unpack data
         builder
             .into_inner()
             .and_then(Encoder::finish)
-            .map(|data| Self { path, data })
+            .map(|data| Self { data })
     }
     /// Decodes a `Build` into a destination directory at path `dest`.
     /// # Errors

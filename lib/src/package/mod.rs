@@ -62,9 +62,7 @@ impl Display for Package {
     /// distributions:
     ///     \[distribution\]...
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        write!(f, "{}\n\nsource: {}", self.metadata, self.src.path)?;
-
-        f.write_str("\n\ndistributions:")?;
+        write!(f, "{}\n\ndistributions:", self.metadata)?;
         for spec in self.distributions.keys() {
             write!(f, "\n\t{}", spec)?;
         }

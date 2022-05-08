@@ -38,5 +38,13 @@ fn handle_client(stream: TcpStream) -> Result<(), Error> {
             .map_err(Error::Finding)?
             .and_then(|pkg| pkg.distributions.get(&spec).map(|build| build.data().to_owned()));
 
-    connection.send(build)
+    // first byte of response if whether or not package was found (1: found, 0: not found)
+    // following is the data if found
+    match build {
+        Some(mut build) => {
+            build.insert(0, 1u8);
+            connection.send(build)
+        },
+        None => connection.send(&[0u8]),
+    }
 }

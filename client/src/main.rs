@@ -26,6 +26,6 @@ fn result_main() -> Result<(), Error> {
 
     let args = Args::parse();
     match args.command {
-        Command::Install { path, spec } => install(path, spec),
+        Command::Install { name, spec } => install(name, spec),
     }
 }

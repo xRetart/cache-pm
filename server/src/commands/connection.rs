@@ -1,17 +1,5 @@
 use {
     crate::error::Error,
-    rkyv::{
-        Serialize,
-        AlignedVec,
-        ser::serializers::{
-            CompositeSerializer,
-            FallbackScratch,
-            AlignedSerializer,
-            SharedSerializeMap,
-            HeapScratch,
-            AllocScratch,
-        },
-    },
     std::{net::TcpStream, io::BufReader, str::FromStr},
 };
 
@@ -40,23 +28,11 @@ impl Connection {
             .map_err(Error::Io)
             .and_then(|_| buf.trim().parse().map_err(conv_err))
     }
-    pub fn send<I>(&mut self, item: I) -> Result<(), Error>
-    where
-        I: Serialize<
-            CompositeSerializer<
-                AlignedSerializer<AlignedVec>,
-                FallbackScratch<HeapScratch<8192_usize>, AllocScratch>,
-                SharedSerializeMap
-            >
-        > + std::fmt::Debug
-    {
-        use {std::io::Write, rkyv::to_bytes};
+    pub fn send<D: AsRef<[u8]>>(&mut self, data: D) -> Result<(), Error> {
+        use std::io::Write;
 
-        const SCRATCH_SPACE: usize = 2 << 12;
-
-        let serialized = to_bytes::<_, SCRATCH_SPACE>(&item).map_err(Error::Serializing)?;
         self.stream
-            .write_all(&serialized)
+            .write_all(data.as_ref())
             .map_err(Error::Io)
             .map(|_| ())
     }

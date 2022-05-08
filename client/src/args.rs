@@ -10,6 +10,6 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum Command {
-    /// install local package
-    Install { path: String, spec: String },
+    /// install package
+    Install { name: String, spec: String },
 }

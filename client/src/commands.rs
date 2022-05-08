@@ -1,38 +1,107 @@
-use {crate::Error, std::path::Path};
+use crate::Error;
 
-/// installs the build in a package at path `path` with specification `spec`
-/// # Errors
-/// Returns `Error::Io` if opening the temporary directory fails.
-/// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
-pub fn install<P, S>(path: P, spec: S) -> Result<(), Error>
+pub fn install<N, S>(name: N, spec: S) -> Result<(), Error>
 where
-    P: AsRef<Path>,
+    N: AsRef<str>,
     S: AsRef<str>,
 {
-    use {
-        library::Archive,
-        std::{env::set_current_dir, fs::OpenOptions, process::Command},
-        tempfile::tempdir,
-    };
+    use std::path::Path;
 
-    const BUILD_SCRIPT_NAME: &str = "install";
-
+    let name = name.as_ref();
     let spec = spec.as_ref();
-    let dir = tempdir().map_err(Error::Io)?;
 
-    Archive::open(path, OpenOptions::new().read(true))
-        .map_err(Error::Io)?
-        .unpack(dir.path(), &spec.parse().map_err(Error::ParseSpec)?)
-        .map_err(Error::Unpack)?;
+    if name.starts_with('.') || name.starts_with('/') {
+        install::locally(Path::new(name), spec)
+    }
+    else {
+        install::globally(name, spec)
+    }
+}
 
-    let build_path = dir.path().join(spec);
-    set_current_dir(&build_path).map_err(Error::Io)?;
 
-    Command::new(build_path.join(BUILD_SCRIPT_NAME))
-        .spawn()
-        .and_then(|mut child| child.wait())
-        .map_err(Error::Io)?
-        .success()
-        .then(|| ())
-        .ok_or(Error::InstallScript)
+mod install {
+    use {crate::Error, std::path::Path, tempfile::TempDir};
+
+
+    /// installs the build in a package at path `path` with specification `spec`
+    /// # Errors
+    /// Returns `Error::Io` if opening the temporary directory fails.
+    /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
+    pub fn locally(path: &Path, spec: &str) -> Result<(), Error> {
+        let dir = temp_dir()?;
+
+        unpack_archive(path, dir.path(), spec)?;
+        install_script(&dir.path().join(spec))
+    }
+
+    /// installs the build in a package called `name` with specification `spec`
+    /// # Errors
+    /// Returns `Error::Io` if opening the temporary directory fails.
+    /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
+    pub fn globally(name: &str, spec: &str) -> Result<(), Error> {
+        use {
+            std::{
+                io::{Read, Write},
+                net::{SocketAddr, TcpStream}
+            },
+            library::package::Dir,
+        };
+
+        let server = SocketAddr::from(([127, 0, 0, 1], 1337));
+        let request = format!("{}:1\n{}\n", name, spec);
+
+        let mut stream = TcpStream::connect(server).map_err(Error::Io)?;
+        stream.write_all(request.as_bytes()).map_err(Error::Io)?;
+
+        let mut data = Vec::new();
+        stream.read_to_end(&mut data).map_err(Error::Io)?;
+
+        // package was found
+        if data[0] == 1 {
+            let dir = temp_dir()?;
+
+            // remove indicator byte
+            data.remove(0);
+            let build = Dir { data };
+
+            build.decode(dir.path()).map_err(Error::Io)?;
+
+            install_script(dir.path())?;
+
+            Ok(())
+        }
+        else {
+            Err(Error::PkgNotFound)
+        }
+    }
+
+    fn temp_dir() -> Result<TempDir, Error>{
+        use tempfile::tempdir;
+
+        tempdir().map_err(Error::Io)
+    }
+    fn unpack_archive(path: &Path, dest: &Path, spec: &str) -> Result<(), Error> {
+        use {library::Archive, std::fs::OpenOptions};
+
+        Archive::open(path, OpenOptions::new().read(true))
+            .map_err(Error::Io)?
+            .unpack(dest, &spec.parse().map_err(Error::ParseSpec)?)
+            .map_err(Error::Unpack)
+    }
+    fn install_script(dir: &Path) -> Result<(), Error> {
+        use std::{env::set_current_dir, process::Command};
+        const BUILD_SCRIPT_NAME: &str = "install";
+
+        // `cd` into directory
+        set_current_dir(dir).map_err(Error::Io)?;
+
+        // run and wait for script to finish
+        Command::new(dir.join(BUILD_SCRIPT_NAME))
+            .spawn()
+            .and_then(|mut child| child.wait())
+            .map_err(Error::Io)?
+            .success()
+            .then(|| ())
+            .ok_or(Error::InstallScript)
+    }
 }
