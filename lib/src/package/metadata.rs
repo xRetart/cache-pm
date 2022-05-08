@@ -1,6 +1,6 @@
 use {
-    bytecheck::CheckBytes,
     crate::error::ParseMetadata,
+    bytecheck::CheckBytes,
     rkyv::{Archive, Deserialize, Serialize},
     std::{
         fmt::{self, Display, Formatter},
@@ -32,16 +32,17 @@ impl FromStr for Metadata {
     fn from_str(raw: &str) -> Result<Self, Self::Err> {
         const SEPARATOR: char = ':';
 
-        raw
-            .split_once(SEPARATOR)
+        raw.split_once(SEPARATOR)
             .ok_or(ParseMetadata::Format)
-            .and_then(
-                |(name, version)|
-                    version
-                        .parse()
-                        .map_err(ParseMetadata::Version)
-                        .map(|version| Self { name: name.to_owned(), version })
-            )
+            .and_then(|(name, version)| {
+                version
+                    .parse()
+                    .map_err(ParseMetadata::Version)
+                    .map(|version| Self {
+                        name: name.to_owned(),
+                        version,
+                    })
+            })
     }
 }
 

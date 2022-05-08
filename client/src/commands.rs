@@ -12,16 +12,13 @@ where
 
     if name.starts_with('.') || name.starts_with('/') {
         install::locally(Path::new(name), spec)
-    }
-    else {
+    } else {
         install::globally(name, spec)
     }
 }
 
-
 mod install {
     use {crate::Error, std::path::Path, tempfile::TempDir};
-
 
     /// installs the build in a package at path `path` with specification `spec`
     /// # Errors
@@ -40,11 +37,11 @@ mod install {
     /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
     pub fn globally(name: &str, spec: &str) -> Result<(), Error> {
         use {
+            library::package::Dir,
             std::{
                 io::{Read, Write},
-                net::{SocketAddr, TcpStream}
+                net::{SocketAddr, TcpStream},
             },
-            library::package::Dir,
         };
 
         let server = SocketAddr::from(([127, 0, 0, 1], 1337));
@@ -69,13 +66,12 @@ mod install {
             install_script(dir.path())?;
 
             Ok(())
-        }
-        else {
+        } else {
             Err(Error::PkgNotFound)
         }
     }
 
-    fn temp_dir() -> Result<TempDir, Error>{
+    fn temp_dir() -> Result<TempDir, Error> {
         use tempfile::tempdir;
 
         tempdir().map_err(Error::Io)

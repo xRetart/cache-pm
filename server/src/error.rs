@@ -1,11 +1,10 @@
 use {
-    library::error::{Read, ParseMetadata, ParseArch},
+    library::error::{ParseArch, ParseMetadata, Read},
     std::{
+        fmt::{self, Display, Formatter},
         io,
-        fmt::{self, Formatter, Display},
-    }
+    },
 };
-
 
 #[derive(Debug)]
 pub enum Error {

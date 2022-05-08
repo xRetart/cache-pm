@@ -1,8 +1,7 @@
 use {
     crate::error::Error,
-    std::{net::TcpStream, io::BufReader, str::FromStr},
+    std::{io::BufReader, net::TcpStream, str::FromStr},
 };
-
 
 #[derive(Debug)]
 pub struct Connection {

@@ -5,10 +5,10 @@ use {
         validation::validators::FromBytesError,
     },
     std::{
-        str::FromStr,
         convert::Infallible,
         fmt::{self, Display, Formatter},
         io,
+        str::FromStr,
     },
 };
 
@@ -120,7 +120,7 @@ impl Display for ParseMetadata {
     fn fmt(&self, f: &mut Formatter) -> fmt::Result {
         match self {
             Self::Version(e) => write!(f, "version: {}", e),
-            Self::Format => write!(f, "version format incorrect")
+            Self::Format => write!(f, "version format incorrect"),
         }
     }
 }

@@ -1,19 +1,15 @@
 mod connection;
 
-
 use {
     crate::error::Error,
     library::package::{Metadata, Spec},
     std::net::TcpStream,
 };
 
-
 pub fn run(port: u16) -> Result<(), Error> {
-    use std::net::{TcpListener, SocketAddr};
+    use std::net::{SocketAddr, TcpListener};
 
-    let listener =
-        TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))
-            .map_err(Error::Io)?;
+    let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port))).map_err(Error::Io)?;
 
     for stream in listener.incoming() {
         match stream {
@@ -25,7 +21,7 @@ pub fn run(port: u16) -> Result<(), Error> {
     Ok(())
 }
 fn handle_client(stream: TcpStream) -> Result<(), Error> {
-    use {library::repo, connection::Connection};
+    use {connection::Connection, library::repo};
 
     let mut connection = Connection::open(stream);
 
@@ -33,18 +29,17 @@ fn handle_client(stream: TcpStream) -> Result<(), Error> {
     let metadata: Metadata = Connection::receive(&mut reader, Error::ParseMetadata)?;
     let spec: Spec = Connection::receive(&mut reader, Error::ParseSpec)?;
 
-    let build =
-        repo::find("/home/main/test-repo", metadata.name)
-            .map_err(Error::Finding)?
-            .and_then(|pkg| pkg.distributions.get(&spec).map(|build| build.data().to_owned()));
+    let build = repo::find("/home/main/test-repo", metadata.name)
+        .map_err(Error::Finding)?
+        .and_then(|mut pkg| pkg.distributions.remove(&spec).map(|build| build.data));
 
     // first byte of response if whether or not package was found (1: found, 0: not found)
     // following is the data if found
     match build {
         Some(mut build) => {
-            build.insert(0, 1u8);
+            build.insert(0, 1_u8);
             connection.send(build)
-        },
-        None => connection.send(&[0u8]),
+        }
+        None => connection.send(&[0_u8]),
     }
 }

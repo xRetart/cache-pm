@@ -18,11 +18,7 @@ fn main() {
     with_code(code);
 }
 fn result_main() -> Result<(), Error> {
-    use {
-        args::Args,
-        clap::Parser,
-        commands::run,
-    };
+    use {args::Args, clap::Parser, commands::run};
 
     let args = Args::parse();
     run(args.port)

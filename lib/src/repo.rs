@@ -1,4 +1,7 @@
-use {crate::{error, Package}, std::path::Path};
+use {
+    crate::{error, Package},
+    std::path::Path,
+};
 
 /// Finds a package called `name` in the repository at `path`
 /// # Errors
@@ -22,7 +25,7 @@ where
         .transpose()
 }
 fn read_pkg<P: AsRef<Path>>(path: P) -> Result<Package, error::Read> {
-    use {std::fs::OpenOptions, crate::Archive};
+    use {crate::Archive, std::fs::OpenOptions};
 
     Archive::open(path, OpenOptions::new().read(true))
         .map_err(error::Read::Io)
