@@ -2,23 +2,26 @@ mod args;
 mod commands;
 mod error;
 
-use error::Error;
+use std::io;
+pub use {args::Args, error::Error};
 
 fn main() {
-    use quit::with_code;
+    use {crate::error::report, quit::with_code};
+
+    env_logger::init();
 
     let code = match result_main() {
-        Ok(()) => 0,
+        Ok(_) => 0,
         Err(e) => {
-            eprintln!("ERROR: {}", e);
+            report(e);
             1
         }
     };
 
     with_code(code);
 }
-fn result_main() -> Result<(), Error> {
-    use {args::Args, clap::Parser, commands::run};
+fn result_main() -> Result<(), io::Error> {
+    use {clap::Parser, commands::run};
 
     let args = Args::parse();
     run(args.port)

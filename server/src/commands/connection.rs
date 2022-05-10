@@ -1,5 +1,5 @@
 use {
-    crate::error::Error,
+    crate::Error,
     std::{io::BufReader, net::TcpStream, str::FromStr},
 };
 

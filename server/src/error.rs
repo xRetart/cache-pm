@@ -23,3 +23,8 @@ impl Display for Error {
         }
     }
 }
+
+pub fn report<E: Display>(e: E) {
+    use log::error;
+    error!("{}", e);
+}
