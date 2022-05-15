@@ -2,7 +2,7 @@ mod args;
 mod commands;
 mod error;
 
-use error::Error;
+pub use error::Error;
 
 fn main() {
     use quit::with_code;
