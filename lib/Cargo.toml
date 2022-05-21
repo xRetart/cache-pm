@@ -10,5 +10,6 @@ zstd = "0.11.1"
 bytecheck = "0.6.7"
 num-traits = "0.2"
 num-derive = "0.3"
+sqlite3 = "0.24.0"
 # heim = { version = "0.0", default-features = false, features = ["host"] }
 # heim = "0.0.11"
