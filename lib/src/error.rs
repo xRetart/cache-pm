@@ -110,7 +110,8 @@ impl Display for ParseArch {
         write!(f, "Unknown architecture.")
     }
 }
-/// An error that can occur while parsing an architecture.
+
+/// An error that can occur while parsing metadata
 #[derive(Debug)]
 pub enum ParseMetadata {
     Version(<Version as FromStr>::Err),
@@ -121,6 +122,23 @@ impl Display for ParseMetadata {
         match self {
             Self::Version(e) => write!(f, "version: {}", e),
             Self::Format => write!(f, "version format incorrect"),
+        }
+    }
+}
+
+/// An error that can occur while retrieving information from database
+#[derive(Debug)]
+pub enum Info {
+    SQLite3(sqlite3::Error),
+    PackageNotFound,
+    InvalidColumn,
+}
+impl Display for Info {
+    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
+        match self {
+            Self::SQLite3(e) => write!(f, "sqlite3: {}", e),
+            Self::PackageNotFound => write!(f, "package not found"),
+            Self::InvalidColumn => write!(f, "invalid column"),
         }
     }
 }

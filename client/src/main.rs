@@ -21,12 +21,13 @@ fn result_main() -> Result<(), Error> {
     use {
         args::{Args, Command},
         clap::Parser,
-        commands::{install, search},
+        commands::{info, install, search},
     };
 
     let args = Args::parse();
     match args.command {
         Command::Install { name, spec } => install(name, spec),
         Command::Search { part } => search(part),
+        Command::Info { name } => info(name),
     }
 }

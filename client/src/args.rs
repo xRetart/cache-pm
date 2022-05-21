@@ -15,4 +15,7 @@ pub enum Command {
 
     /// search for a package containing `part`
     Search { part: String },
+
+    /// get information about package called `name`
+    Info { name: String },
 }

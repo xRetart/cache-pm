@@ -1,5 +1,6 @@
 use {
     sqlite3::{Connection, Cursor},
+    crate::error,
     std::path::Path,
 };
 
@@ -16,7 +17,7 @@ impl Database {
 
         open(path).map(|conn| Self { conn })
     }
-    /// Searches for a packages containing `part`
+    /// Searches for a packages containing `part` in the `packages` table
     /// # Errors
     /// Returns `sqlite3::Error` if preparing the sql statement failed.
     pub fn search<P: AsRef<str>>(&self, part: P) -> sqlite3::Result<NameIter> {
@@ -25,9 +26,35 @@ impl Database {
                 "SELECT name FROM packages WHERE name LIKE '%{}%'",
                 part.as_ref()
             ))
-            .map(|stmt| NameIter {
-                cursor: stmt.cursor(),
+            .map(|statement| NameIter {
+                cursor: statement.cursor(),
             })
+    }
+
+    /// Queries all information a package called `name` available in the `packages` table
+    /// # Errors
+    /// Returns `library::error::Info::SQLite3` if preparing the statement or advancing to the next
+    /// row in the table failed.
+    /// Returns `library::error::Info::PackageNotFound` if a package with name column `name` is not
+    /// present in `packages`.
+    /// Returns `library::error::Info::InvalidColumn` if the `packages` table in the database is
+    /// invalid.
+    pub fn info<N: AsRef<str>>(&self, name: N) -> Result<Info, error::Info> {
+        let statement = format!("SELECT name, version, description, build_depend, run_depend FROM packages WHERE name = '{}'", name.as_ref());
+
+        let mut cursor = self.conn.prepare(statement).map_err(error::Info::SQLite3)?.cursor();
+        let row = cursor.next().map_err(error::Info::SQLite3)?.ok_or(error::Info::PackageNotFound)?;
+
+        let string_at = move |n: usize| row[n].as_string().ok_or(error::Info::InvalidColumn).map(str::to_owned);
+        Ok(
+            Info {
+                name: string_at(0)?,
+                version: string_at(1)?,
+                description: string_at(2)?,
+                build_depend: string_at(3)?,
+                run_depend: string_at(4)?,
+            }
+        )
     }
 }
 
@@ -47,4 +74,13 @@ impl Iterator for NameIter<'_> {
             Err(e) => Some(Err(e)),
         }
     }
+}
+
+/// Information in a row of the `packages` table
+pub struct Info {
+    pub name: String,
+    pub version: String,
+    pub description: String,
+    pub build_depend: String,
+    pub run_depend: String,
 }
