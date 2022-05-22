@@ -1,6 +1,6 @@
 use {
-    sqlite3::{Connection, Cursor},
     crate::error,
+    sqlite3::{Connection, Cursor},
     std::path::Path,
 };
 
@@ -42,19 +42,29 @@ impl Database {
     pub fn info<N: AsRef<str>>(&self, name: N) -> Result<Info, error::Info> {
         let statement = format!("SELECT name, version, description, build_depend, run_depend FROM packages WHERE name = '{}'", name.as_ref());
 
-        let mut cursor = self.conn.prepare(statement).map_err(error::Info::SQLite3)?.cursor();
-        let row = cursor.next().map_err(error::Info::SQLite3)?.ok_or(error::Info::PackageNotFound)?;
+        let mut cursor = self
+            .conn
+            .prepare(statement)
+            .map_err(error::Info::SQLite3)?
+            .cursor();
+        let row = cursor
+            .next()
+            .map_err(error::Info::SQLite3)?
+            .ok_or(error::Info::PackageNotFound)?;
 
-        let string_at = move |n: usize| row[n].as_string().ok_or(error::Info::InvalidColumn).map(str::to_owned);
-        Ok(
-            Info {
-                name: string_at(0)?,
-                version: string_at(1)?,
-                description: string_at(2)?,
-                build_depend: string_at(3)?,
-                run_depend: string_at(4)?,
-            }
-        )
+        let string_at = move |n: usize| {
+            row[n]
+                .as_string()
+                .ok_or(error::Info::InvalidColumn)
+                .map(str::to_owned)
+        };
+        Ok(Info {
+            name: string_at(0)?,
+            version: string_at(1)?,
+            description: string_at(2)?,
+            build_depend: string_at(3)?,
+            run_depend: string_at(4)?,
+        })
     }
 }
 
