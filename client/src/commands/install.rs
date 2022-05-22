@@ -5,8 +5,12 @@ where
     N: AsRef<str>,
     S: AsRef<str>,
 {
+    use crate::commands::select;
+
     let name = name.as_ref();
     let spec = spec.as_ref();
+
+    select(name)?;
 
     if name.starts_with('.') || name.starts_with('/') {
         locally(Path::new(name), spec)

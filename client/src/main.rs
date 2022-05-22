@@ -21,7 +21,7 @@ fn result_main() -> Result<(), Error> {
     use {
         args::{Args, Command},
         clap::Parser,
-        commands::{info, install, search},
+        commands::{deselect, info, install, search, select},
     };
 
     let args = Args::parse();
@@ -29,5 +29,7 @@ fn result_main() -> Result<(), Error> {
         Command::Install { name, spec } => install(name, spec),
         Command::Search { part } => search(part),
         Command::Info { name } => info(name),
+        Command::Select { name } => select(name),
+        Command::Deselect { name } => deselect(name),
     }
 }

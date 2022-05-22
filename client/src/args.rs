@@ -18,4 +18,10 @@ pub enum Command {
 
     /// get information about package called `name`
     Info { name: String },
+
+    /// add package to owned list
+    Select { name: String },
+
+    /// remove package from owned list
+    Deselect { name: String },
 }
