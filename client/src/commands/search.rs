@@ -1,6 +1,6 @@
 use crate::Error;
 
-pub fn search<P: AsRef<str>>(part: P) -> Result<(), Error> {
+pub fn search(part: &str) -> Result<(), Error> {
     use library::database::Database;
 
     let db = Database::open("/var/db/dist-repos/core.db").map_err(Error::SQLite3)?;

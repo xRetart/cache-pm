@@ -27,11 +27,11 @@ impl Connection {
             .map_err(Error::Io)
             .and_then(|_| buf.trim().parse().map_err(conv_err))
     }
-    pub fn send<D: AsRef<[u8]>>(&mut self, data: D) -> Result<(), Error> {
+    pub fn send(&mut self, data: &[u8]) -> Result<(), Error> {
         use std::io::Write;
 
         self.stream
-            .write_all(data.as_ref())
+            .write_all(data)
             .map_err(Error::Io)
             .map(|_| ())
     }

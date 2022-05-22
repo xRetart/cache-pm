@@ -1,6 +1,6 @@
 use crate::Error;
 
-pub fn select<N: AsRef<str>>(name: N) -> Result<(), Error> {
+pub fn select(name: &str) -> Result<(), Error> {
     use {
         std::fs::{File, OpenOptions},
         std::io::{self, Write},
@@ -22,15 +22,13 @@ pub fn select<N: AsRef<str>>(name: N) -> Result<(), Error> {
         .open("/var/lib/dist/owned")
         .map_err(Error::Io)?;
 
-    let name = name.as_ref();
-
     if is_selected(&file, name).map_err(Error::Io)? {
         Ok(())
     } else {
         writeln!(file, "{}", name).map_err(Error::Io)
     }
 }
-pub fn deselect<N: AsRef<str>>(name: N) -> Result<(), Error> {
+pub fn deselect(name: &str) -> Result<(), Error> {
     use std::{
         fs::{File, OpenOptions},
         io::{self, BufRead, BufReader, Seek, Write},
@@ -46,7 +44,6 @@ pub fn deselect<N: AsRef<str>>(name: N) -> Result<(), Error> {
         .open("/var/lib/dist/owned")
         .map_err(Error::Io)?;
 
-    let name = name.as_ref();
     let lines = BufReader::new(&file)
         .lines()
         .collect::<io::Result<Vec<_>>>()

@@ -26,10 +26,10 @@ fn result_main() -> Result<(), Error> {
 
     let args = Args::parse();
     match args.command {
-        Command::Install { name, spec } => install(name, spec),
-        Command::Search { part } => search(part),
-        Command::Info { name } => info(name),
-        Command::Select { name } => select(name),
-        Command::Deselect { name } => deselect(name),
+        Command::Install { name, spec } => install(&name, &spec),
+        Command::Search { part } => search(&part),
+        Command::Info { name } => info(&name),
+        Command::Select { name } => select(&name),
+        Command::Deselect { name } => deselect(&name),
     }
 }

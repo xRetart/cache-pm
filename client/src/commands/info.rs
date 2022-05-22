@@ -1,6 +1,6 @@
 use crate::Error;
 
-pub fn info<N: AsRef<str>>(name: N) -> Result<(), Error> {
+pub fn info(name: &str) -> Result<(), Error> {
     use library::database::{Database, Info};
 
     let Info {

@@ -1,14 +1,7 @@
 use {crate::Error, std::path::Path, tempfile::TempDir};
 
-pub fn install<N, S>(name: N, spec: S) -> Result<(), Error>
-where
-    N: AsRef<str>,
-    S: AsRef<str>,
-{
+pub fn install(name: &str, spec: &str) -> Result<(), Error> {
     use crate::commands::select;
-
-    let name = name.as_ref();
-    let spec = spec.as_ref();
 
     select(name)?;
 

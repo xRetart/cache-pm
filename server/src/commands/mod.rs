@@ -42,7 +42,7 @@ fn handle_client_thread(stream: TcpStream) {
         match build {
             Some(mut build) => {
                 build.insert(0, 1_u8);
-                connection.send(build)
+                connection.send(&build)
             }
             None => connection.send(&[0_u8]),
         }
