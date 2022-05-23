@@ -30,9 +30,6 @@ impl Connection {
     pub fn send(&mut self, data: &[u8]) -> Result<(), Error> {
         use std::io::Write;
 
-        self.stream
-            .write_all(data)
-            .map_err(Error::Io)
-            .map(|_| ())
+        self.stream.write_all(data).map_err(Error::Io).map(|_| ())
     }
 }
