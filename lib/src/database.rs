@@ -42,15 +42,8 @@ impl Database {
     pub fn info<N: AsRef<str>>(&self, name: N) -> Result<Info, error::Info> {
         let statement = format!("SELECT name, version, description, build_depend, run_depend FROM packages WHERE name = '{}'", name.as_ref());
 
-        let mut cursor = self
-            .conn
-            .prepare(statement)
-            .map_err(error::Info::SQLite3)?
-            .cursor();
-        let row = cursor
-            .next()
-            .map_err(error::Info::SQLite3)?
-            .ok_or(error::Info::PackageNotFound)?;
+        let mut cursor = self.conn.prepare(statement)?.cursor();
+        let row = cursor.next()?.ok_or(error::Info::PackageNotFound)?;
 
         let string_at = move |n: usize| {
             row[n]

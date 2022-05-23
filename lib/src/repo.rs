@@ -17,8 +17,7 @@ where
     let path = path.as_ref();
     let name = name.as_ref();
 
-    read_dir(path)
-        .map_err(error::Read::Io)?
+    read_dir(path)?
         .filter_map(Result::ok)
         .find(|entry| entry.file_name() == (name.to_owned() + ".pkg").as_str())
         .map(|entry| read_pkg(entry.path()))
@@ -28,6 +27,6 @@ fn read_pkg<P: AsRef<Path>>(path: P) -> Result<Package, error::Read> {
     use {crate::Archive, std::fs::OpenOptions};
 
     Archive::open(path, OpenOptions::new().read(true))
-        .map_err(error::Read::Io)
+        .map_err(|e| e.into())
         .and_then(|mut archive| archive.read())
 }

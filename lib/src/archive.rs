@@ -21,8 +21,8 @@ impl Archive {
     fn write(&mut self, package: &Package) -> Result<(), error::Write> {
         use {rkyv::to_bytes, std::io::Write};
 
-        let serialized = to_bytes::<_, 8192>(package).map_err(error::Write::Serialize)?;
-        self.file.write_all(&serialized).map_err(error::Write::Io)
+        let serialized = to_bytes::<_, 8192>(package)?;
+        self.file.write_all(&serialized).map_err(|e| e.into())
     }
 
     /// Open the `Archive` at a `path` with `options`
@@ -46,10 +46,9 @@ impl Archive {
         P: AsRef<Path>,
     {
         let mut new = Self {
-            file: File::create(path).map_err(error::Write::Io)?,
+            file: File::create(path)?,
         };
-        new.write(&Package::empty(metadata, src).map_err(error::Write::Io)?)
-            .map(|()| new)
+        new.write(&Package::empty(metadata, src)?).map(|()| new)
     }
 
     /// Reads the `Package` contained in the `Archive`
@@ -60,10 +59,8 @@ impl Archive {
         use {rkyv::from_bytes, std::io::Read};
 
         let mut buffer = Vec::new();
-        self.file
-            .read_to_end(&mut buffer)
-            .map_err(error::Read::Io)?;
-        from_bytes(&buffer).map_err(error::Read::Deserialize)
+        self.file.read_to_end(&mut buffer)?;
+        from_bytes(&buffer).map_err(|e| e.into())
     }
 
     /// Unpacks the `Package` contained in the `Archive`
@@ -74,10 +71,9 @@ impl Archive {
     where
         P: AsRef<Path>,
     {
-        self.read()
-            .map_err(error::UnpackArchive::Read)?
+        self.read()?
             .unpack(spec, dest.as_ref())
-            .map_err(error::UnpackArchive::Package)
+            .map_err(|e| e.into())
     }
 
     /// Appends a `Dist` to the package in the `Archive`
@@ -87,15 +83,12 @@ impl Archive {
     pub fn append(&mut self, spec: Spec, build: Dir) -> Result<(), error::Append> {
         use std::io::Seek;
 
-        let mut package = self.read().map_err(error::Append::Read)?;
+        let mut package = self.read()?;
 
         package.distributions.insert(spec, build);
 
-        self.file
-            .rewind()
-            .map_err(error::Write::Io)
-            .map_err(error::Append::Write)?;
-        self.write(&package).map_err(error::Append::Write)
+        self.file.rewind().map_err(error::Write::Io)?;
+        self.write(&package).map_err(|e| e.into())
     }
 
     /// Extracts the source of the package in the `Archive`
@@ -103,10 +96,10 @@ impl Archive {
     /// Returns `lib::error::Extract::Read` if reading the `Archive` failed.
     /// Returns `lib::error::Extract::Io` if decoding the underlying directory failed.
     pub fn extract(&mut self) -> Result<(), error::Extract> {
-        let pkg = self.read().map_err(error::Extract::Read)?;
+        let pkg = self.read()?;
 
         pkg.src
             .decode(pkg.metadata.name + ".src")
-            .map_err(error::Extract::Io)
+            .map_err(|e| e.into())
     }
 }

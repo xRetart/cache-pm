@@ -51,7 +51,7 @@ impl Package {
         self.distributions
             .get(spec)
             .ok_or(error::Unpack::SpecNotFound)
-            .and_then(|build| build.decode(dest).map_err(error::Unpack::Io))
+            .and_then(|build| build.decode(dest).map_err(|e| e.into()))
     }
 }
 impl Display for Package {
