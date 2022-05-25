@@ -1,9 +1,6 @@
-use {crate::Error, std::path::Path};
+use crate::Error;
 
-pub fn read<P>(path: P) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-{
+pub fn read(path: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
     Archive::open(path, OpenOptions::new().read(true))
@@ -12,23 +9,15 @@ where
         .map(|package| println!("{}", package))
 }
 
-pub fn create<P, V>(path: P, src: String, name: String, vers: V) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-    V: AsRef<str>,
-{
+pub fn create(path: &str, src: String, name: String, vers: &str) -> Result<(), Error> {
     use library::{package::Metadata, Archive};
 
-    let version = vers.as_ref().parse().map_err(Error::ParseVersion)?;
+    let version = vers.parse().map_err(Error::ParseVersion)?;
     Archive::create(path, src, Metadata { name, version })
         .map_err(Error::Write)
         .map(|_| ())
 }
-pub fn append<P, S>(path: P, build: String, spec: S) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-    S: AsRef<str>,
-{
+pub fn append(path: &str, build: String, spec: &str) -> Result<(), Error> {
     use {
         library::{package::Dir, Archive},
         std::fs::OpenOptions,
@@ -37,28 +26,20 @@ where
     Archive::open(path, OpenOptions::new().read(true).write(true))
         .map_err(Error::Io)?
         .append(
-            spec.as_ref().parse().map_err(Error::ParseArch)?,
+            spec.parse().map_err(Error::ParseArch)?,
             Dir::encode(build, 9).map_err(Error::Io)?,
         )
         .map_err(Error::Append)
 }
-pub fn unpack<P, D, S>(path: P, dest: D, spec: S) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-    D: AsRef<Path>,
-    S: AsRef<str>,
-{
+pub fn unpack(source: &str, dest: &str, spec: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
-    Archive::open(path, OpenOptions::new().read(true))
+    Archive::open(source, OpenOptions::new().read(true))
         .map_err(Error::Io)?
-        .unpack(dest, &spec.as_ref().parse().map_err(Error::ParseArch)?)
+        .unpack(dest, &spec.parse().map_err(Error::ParseArch)?)
         .map_err(Error::UnpackArchive)
 }
-pub fn extract<P>(path: P) -> Result<(), Error>
-where
-    P: AsRef<Path>,
-{
+pub fn extract(path: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
     Archive::open(path, OpenOptions::new().read(true))
