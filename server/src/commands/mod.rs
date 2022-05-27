@@ -24,7 +24,7 @@ pub fn run(port: u16, repo: &Path) -> Result<(), io::Error> {
     Ok(())
 }
 fn handle_client_thread(stream: TcpStream, repo: &Path) {
-    fn handle_client(stream: TcpStream, repo: &Path) -> Result<(), Error> {
+    fn handle_client(stream: TcpStream, repo: &Path) -> Result<(Metadata, Spec, bool), Error> {
         use {connection::Connection, library::repo};
 
         let mut connection = Connection::open(stream);
@@ -33,7 +33,7 @@ fn handle_client_thread(stream: TcpStream, repo: &Path) {
         let metadata: Metadata = Connection::receive(&mut reader, Error::ParseMetadata)?;
         let spec: Spec = Connection::receive(&mut reader, Error::ParseSpec)?;
 
-        let build = repo::find(repo, metadata.name)
+        let build = repo::find(repo, &metadata.name)
             .map_err(Error::Finding)?
             .and_then(|mut pkg| pkg.distributions.remove(&spec).map(|build| build.data));
 
@@ -42,9 +42,14 @@ fn handle_client_thread(stream: TcpStream, repo: &Path) {
         match build {
             Some(mut build) => {
                 build.insert(0, 1_u8);
-                connection.send(&build)
+                connection.send(&build)?;
+
+                Ok((metadata, spec, true))
             }
-            None => connection.send(&[0_u8]),
+            None => {
+                connection.send(&[0_u8])?;
+                Ok((metadata, spec, false))
+            },
         }
     }
 
@@ -55,9 +60,14 @@ fn handle_client_thread(stream: TcpStream, repo: &Path) {
         .as_ref()
         .map_or("<unknown>".to_owned(), ToString::to_string);
 
-    if let Err(e) = handle_client(stream, repo) {
-        info!("serving {} failed because: {}", peer, e);
-    } else {
-        info!("successfully served {}", peer);
+    match handle_client(stream, repo) {
+        Ok((metadata, spec, served)) =>
+            if served {
+                info!("served {} with {}/{}", peer, metadata, spec)
+            }
+            else {
+                info!("by {} requested {}/{} is not in repository", peer, metadata, spec)
+            },
+        Err(e) => info!("serving {} failed because: {}", peer, e),
     }
 }
