@@ -24,5 +24,5 @@ fn result_main() -> Result<(), io::Error> {
     use {clap::Parser, commands::run};
 
     let args = Args::parse();
-    run(args.port)
+    run(args.port, &args.repo)
 }
