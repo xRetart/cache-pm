@@ -29,9 +29,7 @@ impl Archive {
     /// # Errors
     /// Returns `std::io::Error` if the file at `path` does not exists or
     /// the user does not have permission to open it with `options`.
-    pub fn open<P>(path: P, options: &OpenOptions) -> io::Result<Self>
-    where
-        P: AsRef<Path>,
+    pub fn open<P: AsRef<Path>>(path: P, options: &OpenOptions) -> io::Result<Self>
     {
         options.open(path).map(|file| Self { file })
     }
@@ -41,10 +39,7 @@ impl Archive {
     /// Returns `lib::error::Write::Io` if the file could not be created or
     /// could not be written to.
     /// Returns `lib::error::Write::Serialize` if converting the package to binary failed.
-    pub fn create<P>(path: P, metadata: Metadata) -> Result<Self, error::Write>
-    where
-        P: AsRef<Path>,
-    {
+    pub fn create<P: AsRef<Path>>(path: P, metadata: Metadata) -> Result<Self, error::Write> {
         let mut new = Self {
             file: File::create(path)?,
         };
@@ -67,10 +62,7 @@ impl Archive {
     /// # Errors
     /// Returns `lib::error::UnpackArchive::Read` if reading the `Package` from the file failed.
     /// Returns `lib::error::UnpackArchive::Package` if unpacking the `Package` failed.
-    pub fn unpack<P>(&mut self, dest: P, spec: &Spec) -> Result<(), error::UnpackArchive>
-    where
-        P: AsRef<Path>,
-    {
+    pub fn unpack<P: AsRef<Path>>(&mut self, dest: P, spec: &Spec) -> Result<(), error::UnpackArchive> {
         self.read()?
             .unpack(spec, dest.as_ref())
             .map_err(|e| e.into())

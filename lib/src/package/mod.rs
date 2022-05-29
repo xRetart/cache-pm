@@ -40,10 +40,7 @@ impl Package {
     /// # Errors
     /// Returns `lib::error::Unpacking::SpecNotFound` when the package does not contain a build associated
     /// with the specification `spec`
-    pub fn unpack<P>(&self, spec: &Spec, dest: P) -> Result<(), error::Unpack>
-    where
-        P: AsRef<Path>,
-    {
+    pub fn unpack<P: AsRef<Path>>(&self, spec: &Spec, dest: P) -> Result<(), error::Unpack> {
         self.distributions
             .get(spec)
             .ok_or(error::Unpack::SpecNotFound)
