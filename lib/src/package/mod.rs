@@ -24,19 +24,15 @@ pub struct Package {
 
     /// Map of `Spec`'s pointing to their associated `Build`
     pub distributions: HashMap<Spec, Dir>,
-
-    /// Source code
-    pub src: Dir,
 }
 impl Package {
     /// Creates a `Package` with `metadata` containing no `Dist`'s
     /// # Errors
     /// Returns `std::io::Erorr` when encoding the directory at path `src` failed.
-    pub fn empty(metadata: Metadata, src: String) -> io::Result<Self> {
+    pub fn empty(metadata: Metadata) -> io::Result<Self> {
         Ok(Self {
             metadata,
             distributions: HashMap::new(),
-            src: Dir::encode(src, 9)?,
         })
     }
 

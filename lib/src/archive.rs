@@ -36,19 +36,19 @@ impl Archive {
         options.open(path).map(|file| Self { file })
     }
 
-    /// Creates an empty `Archive` at `path` with specified `metadata` and source `src`
+    /// Creates an empty `Archive` at `path` with specified `metadata`
     /// # Errors
     /// Returns `lib::error::Write::Io` if the file could not be created or
-    /// could not be written to or encoding the directory at `src` failed.
+    /// could not be written to.
     /// Returns `lib::error::Write::Serialize` if converting the package to binary failed.
-    pub fn create<P>(path: P, src: String, metadata: Metadata) -> Result<Self, error::Write>
+    pub fn create<P>(path: P, metadata: Metadata) -> Result<Self, error::Write>
     where
         P: AsRef<Path>,
     {
         let mut new = Self {
             file: File::create(path)?,
         };
-        new.write(&Package::empty(metadata, src)?).map(|()| new)
+        new.write(&Package::empty(metadata)?).map(|()| new)
     }
 
     /// Reads the `Package` contained in the `Archive`
@@ -89,17 +89,5 @@ impl Archive {
 
         self.file.rewind().map_err(error::Write::Io)?;
         self.write(&package).map_err(|e| e.into())
-    }
-
-    /// Extracts the source of the package in the `Archive`
-    /// # Errors
-    /// Returns `lib::error::Extract::Read` if reading the `Archive` failed.
-    /// Returns `lib::error::Extract::Io` if decoding the underlying directory failed.
-    pub fn extract(&mut self) -> Result<(), error::Extract> {
-        let pkg = self.read()?;
-
-        pkg.src
-            .decode(pkg.metadata.name + ".src")
-            .map_err(|e| e.into())
     }
 }

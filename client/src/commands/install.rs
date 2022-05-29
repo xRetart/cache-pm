@@ -20,7 +20,7 @@ fn locally(path: &Path, spec: &str) -> Result<(), Error> {
     let dir = temp_dir()?;
 
     unpack_archive(path, dir.path(), spec)?;
-    install_script(&dir.path().join(spec))
+    install_script(dir.path())
 }
 
 /// installs the build in a package called `name` with specification `spec`
@@ -78,13 +78,13 @@ fn unpack_archive(path: &Path, dest: &Path, spec: &str) -> Result<(), Error> {
 }
 fn install_script(dir: &Path) -> Result<(), Error> {
     use std::{env::set_current_dir, process::Command};
-    const BUILD_SCRIPT_NAME: &str = "install";
+    const INSTALL_SCRIPT_NAME: &str = "install";
 
     // `cd` into directory
     set_current_dir(dir).map_err(Error::Io)?;
 
     // run and wait for script to finish
-    Command::new(dir.join(BUILD_SCRIPT_NAME))
+    Command::new(dir.join(INSTALL_SCRIPT_NAME))
         .spawn()
         .and_then(|mut child| child.wait())
         .map_err(Error::Io)?

@@ -39,10 +39,7 @@ impl Dir {
     /// # Errors
     /// Returns `std::io::Error` when opening the decoder `zstd::Decoder`
     /// or unpacking the archive fails.
-    pub fn decode<P>(&self, dest: P) -> io::Result<()>
-    where
-        P: AsRef<Path>,
-    {
+    pub fn decode<D: AsRef<Path>>(&self, dest: D) -> io::Result<()> {
         use {tar::Archive, zstd::Decoder};
 
         let mut archive = Archive::new(Decoder::new(self.data.as_slice())?);

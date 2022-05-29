@@ -9,11 +9,11 @@ pub fn read(path: &str) -> Result<(), Error> {
         .map(|package| println!("{}", package))
 }
 
-pub fn create(path: &str, src: String, name: String, vers: &str) -> Result<(), Error> {
+pub fn create(path: &str, name: String, vers: &str) -> Result<(), Error> {
     use library::{package::Metadata, Archive};
 
     let version = vers.parse().map_err(Error::ParseVersion)?;
-    Archive::create(path, src, Metadata { name, version })
+    Archive::create(path, Metadata { name, version })
         .map_err(Error::Write)
         .map(|_| ())
 }
@@ -38,12 +38,4 @@ pub fn unpack(source: &str, dest: &str, spec: &str) -> Result<(), Error> {
         .map_err(Error::Io)?
         .unpack(dest, &spec.parse().map_err(Error::ParseArch)?)
         .map_err(Error::UnpackArchive)
-}
-pub fn extract(path: &str) -> Result<(), Error> {
-    use {library::Archive, std::fs::OpenOptions};
-
-    Archive::open(path, OpenOptions::new().read(true))
-        .map_err(Error::Io)?
-        .extract()
-        .map_err(Error::Extract)
 }

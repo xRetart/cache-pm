@@ -39,6 +39,7 @@ impl FromStr for Spec {
 #[derive(Archive, Deserialize, Serialize, FromPrimitive, PartialEq, Eq, Hash, Debug)]
 #[archive_attr(derive(CheckBytes, PartialEq, Eq, Hash))]
 pub enum Arch {
+    Source = 0,
     X86_64 = 1,
     X86 = 2,
     ARM64 = 3,
@@ -59,14 +60,15 @@ impl FromStr for Arch {
     /// Parses a `&str` to an `Arch`.
     /// The string `s` corresponds directly to the name of the variant.
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "X86_64" => Ok(Self::X86_64),
-            "X86" => Ok(Self::X86),
-            "ARM64" => Ok(Self::ARM64),
-            "ARM" => Ok(Self::ARM),
-            "PPC64" => Ok(Self::PPC64),
-            "PPC" => Ok(Self::PPC),
-            "Sparc" => Ok(Self::Sparc),
+        match s.to_lowercase().as_str() {
+            "source" | "src" => Ok(Self::Source),
+            "x86_64" => Ok(Self::X86_64),
+            "x86" => Ok(Self::X86),
+            "arm64" => Ok(Self::ARM64),
+            "arm" => Ok(Self::ARM),
+            "ppc64" => Ok(Self::PPC64),
+            "ppc" => Ok(Self::PPC),
+            "sparc" => Ok(Self::Sparc),
             _ => Err(ParseArch::Unknown),
         }
     }
