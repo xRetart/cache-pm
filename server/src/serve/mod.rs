@@ -8,7 +8,7 @@ use {
     std::{io, net::TcpStream, path::Path},
 };
 
-pub fn run(port: u16, repo: &Path) -> Result<(), io::Error> {
+pub fn serve(port: u16, repo: &Path) -> Result<(), io::Error> {
     use {
         log::info,
         std::net::{SocketAddr, TcpListener},

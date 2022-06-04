@@ -1,5 +1,5 @@
 mod args;
-mod commands;
+mod serve;
 mod error;
 
 use std::io;
@@ -21,8 +21,8 @@ fn main() {
     with_code(code);
 }
 fn result_main() -> Result<(), io::Error> {
-    use {clap::Parser, commands::run};
+    use {clap::Parser, serve::serve};
 
     let args = Args::parse();
-    run(args.port, &args.repo)
+    serve(args.port, &args.repo)
 }
