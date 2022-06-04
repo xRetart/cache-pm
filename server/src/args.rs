@@ -1,4 +1,4 @@
-use {std::path::PathBuf, clap::Parser};
+use {clap::Parser, std::path::PathBuf};
 
 #[derive(Parser, Debug)]
 #[clap(author, version, about)]
