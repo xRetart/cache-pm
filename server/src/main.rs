@@ -1,6 +1,6 @@
 mod args;
-mod serve;
 mod error;
+mod serve;
 
 use std::io;
 pub use {args::Args, error::Error};
@@ -24,5 +24,5 @@ fn result_main() -> Result<(), io::Error> {
     use {clap::Parser, serve::serve};
 
     let args = Args::parse();
-    serve(args.port, args.repo)
+    serve(args.port, &args.repo)
 }

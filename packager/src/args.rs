@@ -17,6 +17,8 @@ pub enum Command {
     Create {
         path: String,
         name: String,
+
+        #[clap(short, long)]
         vers: String,
     },
 
@@ -24,6 +26,8 @@ pub enum Command {
     Append {
         path: String,
         build: String,
+
+        #[clap(short, long)]
         spec: String,
     },
 
@@ -31,6 +35,8 @@ pub enum Command {
     Unpack {
         path: String,
         dest: String,
+
+        #[clap(short, long)]
         spec: String,
     },
 }

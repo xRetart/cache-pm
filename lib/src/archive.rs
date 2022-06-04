@@ -29,8 +29,7 @@ impl Archive {
     /// # Errors
     /// Returns `std::io::Error` if the file at `path` does not exists or
     /// the user does not have permission to open it with `options`.
-    pub fn open<P: AsRef<Path>>(path: P, options: &OpenOptions) -> io::Result<Self>
-    {
+    pub fn open<P: AsRef<Path>>(path: P, options: &OpenOptions) -> io::Result<Self> {
         options.open(path).map(|file| Self { file })
     }
 
@@ -62,7 +61,11 @@ impl Archive {
     /// # Errors
     /// Returns `lib::error::UnpackArchive::Read` if reading the `Package` from the file failed.
     /// Returns `lib::error::UnpackArchive::Package` if unpacking the `Package` failed.
-    pub fn unpack<P: AsRef<Path>>(&mut self, dest: P, spec: &Spec) -> Result<(), error::UnpackArchive> {
+    pub fn unpack<P: AsRef<Path>>(
+        &mut self,
+        dest: P,
+        spec: &Spec,
+    ) -> Result<(), error::UnpackArchive> {
         self.read()?
             .unpack(spec, dest.as_ref())
             .map_err(|e| e.into())

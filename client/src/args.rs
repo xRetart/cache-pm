@@ -11,7 +11,12 @@ pub struct Args {
 #[derive(Subcommand, Debug)]
 pub enum Command {
     /// install package
-    Install { name: String, spec: String },
+    Install {
+        name: String,
+
+        #[clap(short, long)]
+        spec: String,
+    },
 
     /// search for a package containing `part`
     Search { part: String },

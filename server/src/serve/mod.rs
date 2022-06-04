@@ -5,20 +5,23 @@ use {
     crate::Error,
     library::package::{Metadata, Spec},
     status::Status,
-    std::{io, net::TcpStream, path::{Path, PathBuf}},
+    std::{io, net::TcpStream, path::Path},
 };
 
-pub fn serve(port: u16, repo: PathBuf) -> Result<(), io::Error> {
+pub fn serve(port: u16, repo: &Path) -> Result<(), io::Error> {
     use {
         log::info,
-        std::{thread::spawn, net::{SocketAddr, TcpListener}},
+        std::{
+            net::{SocketAddr, TcpListener},
+            thread::spawn,
+        },
     };
 
     let listener = TcpListener::bind(SocketAddr::from(([0, 0, 0, 0], port)))?;
     let mut threads = Vec::new();
 
     for stream in listener.incoming() {
-        let repo = repo.clone();
+        let repo = repo.to_owned();
         match stream {
             Ok(stream) => threads.push(spawn(move || handle_client_thread(stream, &repo))),
             Err(e) => info!("unsuccesful connection: {}", e),

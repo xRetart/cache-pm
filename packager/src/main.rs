@@ -28,7 +28,7 @@ fn result_main() -> Result<(), Error> {
     match args.command {
         Command::Read { path } => read(&path),
         Command::Create { path, name, vers } => create(&path, name, &vers),
-        Command::Append { path, spec, build } => append(&path, spec, &build),
+        Command::Append { path, spec, build } => append(&path, build, &spec),
         Command::Unpack { path, dest, spec } => unpack(&path, &dest, &spec),
     }
 }
