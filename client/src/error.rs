@@ -4,6 +4,7 @@ use {
         fmt::{self, Display, Formatter},
         io,
     },
+    confy::ConfyError,
 };
 
 #[derive(Debug)]
@@ -14,6 +15,7 @@ pub enum Error {
     SQLite3(sqlite3::Error),
     Info(Info),
     Newest(Newest),
+    Confy(ConfyError),
     InstallScript,
     PkgNotFound,
 }
@@ -25,7 +27,8 @@ impl Display for Error {
             Self::ParseSpec(e) => write!(f, "parsing specification: {}", e),
             Self::SQLite3(e) => write!(f, "sqlite3: {}", e),
             Self::Info(e) => write!(f, "info: {}", e),
-            Self::Newest(e) => write!(f, "Newest: {}", e),
+            Self::Newest(e) => write!(f, "newest: {}", e),
+            Self::Confy(e) => write!(f, "confy: {}", e),
             Self::InstallScript => write!(f, "installation script failed"),
             Self::PkgNotFound => write!(f, "package not found"),
         }

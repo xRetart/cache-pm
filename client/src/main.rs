@@ -1,8 +1,11 @@
 mod args;
+mod config;
 mod commands;
 mod error;
 
-pub use error::Error;
+pub use {config::Config, error::Error};
+
+const APP_NAME: &str = "dist";
 
 fn main() {
     use quit::with_code;
@@ -22,11 +25,14 @@ fn result_main() -> Result<(), Error> {
         args::{Args, Command},
         clap::Parser,
         commands::{deselect, info, install, search, select},
+        confy::load,
     };
+
+    let config: Config = load(APP_NAME).map_err(Error::Confy)?;
 
     let args = Args::parse();
     match args.command {
-        Command::Install { name, spec } => install(&name, &spec),
+        Command::Install { name, spec } => install(&name, &spec, &config),
         Command::Search { part } => search(&part),
         Command::Info { name } => info(&name),
         Command::Select { name } => select(&name),

@@ -1,6 +1,6 @@
-use {crate::Error, std::path::Path, tempfile::TempDir};
+use {crate::{Config, Error}, std::path::Path, tempfile::TempDir};
 
-pub fn install(name: &str, spec: &str) -> Result<(), Error> {
+pub fn install(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     use crate::commands::select;
 
     select(name)?;
@@ -8,7 +8,7 @@ pub fn install(name: &str, spec: &str) -> Result<(), Error> {
     if name.starts_with('.') || name.starts_with('/') {
         locally(Path::new(name), spec)
     } else {
-        globally(name, spec)
+        globally(name, spec, config)
     }
 }
 
@@ -27,12 +27,12 @@ fn locally(path: &Path, spec: &str) -> Result<(), Error> {
 /// # Errors
 /// Returns `Error::Io` if opening the temporary directory fails.
 /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
-fn globally(name: &str, spec: &str) -> Result<(), Error> {
+fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     use {
         library::{Database, package::Dir},
         std::{
             io::{Read, Write},
-            net::{SocketAddr, TcpStream},
+            net::TcpStream,
         },
     };
 
@@ -41,7 +41,7 @@ fn globally(name: &str, spec: &str) -> Result<(), Error> {
         .newest(name)
         .map_err(Error::Newest)?;
 
-    let server = SocketAddr::from(([127, 0, 0, 1], 1337));
+    let server = config.servers[0];
     let request = format!("{}:{}\n{}\n", name, version, spec);
 
     let mut stream = TcpStream::connect(server).map_err(Error::Io)?;

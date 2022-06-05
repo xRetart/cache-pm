@@ -10,3 +10,5 @@ rkyv = { version = "0.7.36", features = ["alloc", "validation"] }
 quit = "1.1.4"
 tempfile = "3.3.0"
 sqlite3 = "0.24.0"
+confy = "0.4.0"
+serde = { version = "1.0.137", features = ["derive"] }
