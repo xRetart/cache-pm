@@ -97,3 +97,19 @@ pub enum Info {
     #[error("Column is invalid.")]
     InvalidColumn,
 }
+
+/// An error that can occur while retrieving the newest version for a package from the database
+#[derive(Debug, Error)]
+pub enum Newest {
+    #[error("sqlite3: {0}")]
+    SQLite3(#[from] sqlite3::Error),
+
+    #[error("Version format in database is invalid.")]
+    Version(#[from] <Version as FromStr>::Err),
+
+    #[error("Package could not be found.")]
+    PackageNotFound,
+
+    #[error("Column is invalid.")]
+    InvalidColumn,
+}

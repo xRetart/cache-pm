@@ -1,5 +1,5 @@
 use {
-    crate::error,
+    crate::{package::metadata::Version, error},
     sqlite3::{Connection, Cursor},
     std::path::Path,
 };
@@ -21,11 +21,10 @@ impl Database {
     /// # Errors
     /// Returns `sqlite3::Error` if preparing the sql statement failed.
     pub fn search<P: AsRef<str>>(&self, part: P) -> sqlite3::Result<NameIter> {
+        let statement = format!("SELECT name FROM packages WHERE name LIKE '%{}%'", part.as_ref());
+
         self.conn
-            .prepare(format!(
-                "SELECT name FROM packages WHERE name LIKE '%{}%'",
-                part.as_ref()
-            ))
+            .prepare(statement)
             .map(|statement| NameIter {
                 cursor: statement.cursor(),
             })
@@ -58,6 +57,22 @@ impl Database {
             build_depend: string_at(3)?,
             run_depend: string_at(4)?,
         })
+    }
+
+    /// Gets the newest version of the package in the database.
+    pub fn newest<N: AsRef<str>>(&self, name: N) -> Result<Version, error::Newest> {
+        let statement = format!("SELECT version FROM packages WHERE name = '{}'", name.as_ref());
+
+        let version = self.conn.
+            prepare(statement)?
+            .cursor()
+            .next()?
+            .ok_or(error::Newest::PackageNotFound)?[0]
+            .as_string()
+            .ok_or(error::Newest::InvalidColumn)?
+            .parse()?;
+
+        Ok(version)
     }
 }
 

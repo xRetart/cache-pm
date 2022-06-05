@@ -1,5 +1,5 @@
 use {
-    library::error::{Info, ParseArch, UnpackArchive},
+    library::error::{Info, ParseArch, UnpackArchive, Newest},
     std::{
         fmt::{self, Display, Formatter},
         io,
@@ -13,6 +13,7 @@ pub enum Error {
     ParseSpec(ParseArch),
     SQLite3(sqlite3::Error),
     Info(Info),
+    Newest(Newest),
     InstallScript,
     PkgNotFound,
 }
@@ -24,6 +25,7 @@ impl Display for Error {
             Self::ParseSpec(e) => write!(f, "parsing specification: {}", e),
             Self::SQLite3(e) => write!(f, "sqlite3: {}", e),
             Self::Info(e) => write!(f, "info: {}", e),
+            Self::Newest(e) => write!(f, "Newest: {}", e),
             Self::InstallScript => write!(f, "installation script failed"),
             Self::PkgNotFound => write!(f, "package not found"),
         }

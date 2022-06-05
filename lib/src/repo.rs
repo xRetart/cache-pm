@@ -1,5 +1,5 @@
 use {
-    crate::{error, Package},
+    crate::{package::metadata::Version, error, Package},
     std::path::Path,
 };
 
@@ -7,7 +7,7 @@ use {
 /// # Errors
 /// Returns `lib::error::Read::Io` if reading the repository at `path` failed
 /// Returns `lib::error::Read` if reading the archive called `name` failed
-pub fn find<P, N>(path: P, name: N) -> Result<Option<Package>, error::Read>
+pub fn find<P, N>(path: P, name: N, version: &Version) -> Result<Option<Package>, error::Read>
 where
     P: AsRef<Path>,
     N: AsRef<str>,
@@ -17,9 +17,11 @@ where
     let path = path.as_ref();
     let name = name.as_ref();
 
+    let filename = format!("{}-{}.pkg", name, version);
+
     read_dir(path)?
         .filter_map(Result::ok)
-        .find(|entry| entry.file_name() == (name.to_owned() + ".pkg").as_str())
+        .find(|entry| entry.file_name() == filename.as_str())
         .map(|entry| read_pkg(entry.path()))
         .transpose()
 }

@@ -29,15 +29,20 @@ fn locally(path: &Path, spec: &str) -> Result<(), Error> {
 /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
 fn globally(name: &str, spec: &str) -> Result<(), Error> {
     use {
-        library::package::Dir,
+        library::{Database, package::Dir},
         std::{
             io::{Read, Write},
             net::{SocketAddr, TcpStream},
         },
     };
 
+    let version = Database::open("/var/db/dist-repos/core.db")
+        .map_err(Error::SQLite3)?
+        .newest(name)
+        .map_err(Error::Newest)?;
+
     let server = SocketAddr::from(([127, 0, 0, 1], 1337));
-    let request = format!("{}:1\n{}\n", name, spec);
+    let request = format!("{}:{}\n{}\n", name, version, spec);
 
     let mut stream = TcpStream::connect(server).map_err(Error::Io)?;
     stream.write_all(request.as_bytes()).map_err(Error::Io)?;
