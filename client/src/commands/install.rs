@@ -29,14 +29,14 @@ fn locally(path: &Path, spec: &str) -> Result<(), Error> {
 /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
 fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     use {
-        library::{Database, package::Dir},
+        library::{database::core, package::Dir},
         std::{
             io::{Read, Write},
             net::TcpStream,
         },
     };
 
-    let version = Database::open("/var/db/dist-repos/core.db")
+    let version = core()
         .map_err(Error::SQLite3)?
         .newest(name)
         .map_err(Error::Newest)?;

@@ -1,7 +1,7 @@
 use crate::Error;
 
 pub fn info(name: &str) -> Result<(), Error> {
-    use library::database::{Database, Info};
+    use library::database::{core, Info};
 
     let Info {
         name,
@@ -9,7 +9,7 @@ pub fn info(name: &str) -> Result<(), Error> {
         description,
         build_depend,
         run_depend,
-    } = Database::open("/var/db/dist-repos/core.db")
+    } = core()
         .map_err(Error::SQLite3)?
         .info(name)
         .map_err(Error::Info)?;

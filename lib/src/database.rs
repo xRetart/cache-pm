@@ -75,6 +75,9 @@ impl Database {
         Ok(version)
     }
 }
+pub fn core() -> sqlite3::Result<Database> {
+    Database::open("/var/db/dist/core.db")
+}
 
 /// Iterator over the `name` column of the `packages` table in the database.
 pub struct NameIter<'c> {
