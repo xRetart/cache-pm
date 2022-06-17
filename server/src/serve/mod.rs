@@ -51,8 +51,7 @@ fn handle_client(stream: TcpStream, repo: &Path) -> Result<Status, Error> {
     let metadata: Metadata = Connection::receive(&mut reader, Error::ParseMetadata)?;
     let spec: Spec = Connection::receive(&mut reader, Error::ParseSpec)?;
 
-    let build = repo::find(repo, &metadata.name, &metadata.version)
-        .map_err(Error::Finding)?
+    let build = repo::find(repo, &metadata.name, &metadata.version)?
         .and_then(|mut pkg| pkg.distributions.remove(&spec).map(|build| build.data));
 
     // first byte of response if whether or not package was found (1: found, 0: not found)

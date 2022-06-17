@@ -36,19 +36,16 @@ fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
         },
     };
 
-    let version = core()
-        .map_err(Error::SQLite3)?
-        .newest(name)
-        .map_err(Error::Newest)?;
+    let version = core()?.newest(name)?;
 
     let server = config.servers[0];
     let request = format!("{}:{}\n{}\n", name, version, spec);
 
-    let mut stream = TcpStream::connect(server).map_err(Error::Io)?;
-    stream.write_all(request.as_bytes()).map_err(Error::Io)?;
+    let mut stream = TcpStream::connect(server)?;
+    stream.write_all(request.as_bytes())?;
 
     let mut data = Vec::new();
-    stream.read_to_end(&mut data).map_err(Error::Io)?;
+    stream.read_to_end(&mut data)?;
 
     // package was found
     if data[0] == 1 {
@@ -58,7 +55,7 @@ fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
         data.remove(0);
         let build = Dir { data };
 
-        build.decode(dir.path()).map_err(Error::Io)?;
+        build.decode(dir.path())?;
 
         install_script(dir.path())?;
 
@@ -71,28 +68,27 @@ fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
 fn temp_dir() -> Result<TempDir, Error> {
     use tempfile::tempdir;
 
-    tempdir().map_err(Error::Io)
+    tempdir().map_err(|e| e.into())
 }
 fn unpack_archive(path: &Path, dest: &Path, spec: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
-    Archive::open(path, OpenOptions::new().read(true))
-        .map_err(Error::Io)?
-        .unpack(dest, &spec.parse().map_err(Error::ParseSpec)?)
-        .map_err(Error::Unpack)
+    Archive::open(path, OpenOptions::new().read(true))?
+        .unpack(dest, &spec.parse()?)?;
+
+    Ok(())
 }
 fn install_script(dir: &Path) -> Result<(), Error> {
     use std::{env::set_current_dir, process::Command};
     const INSTALL_SCRIPT_NAME: &str = "install";
 
     // `cd` into directory
-    set_current_dir(dir).map_err(Error::Io)?;
+    set_current_dir(dir)?;
 
     // run and wait for script to finish
     Command::new(dir.join(INSTALL_SCRIPT_NAME))
         .spawn()
-        .and_then(|mut child| child.wait())
-        .map_err(Error::Io)?
+        .and_then(|mut child| child.wait())?
         .success()
         .then(|| ())
         .ok_or(Error::InstallScript)

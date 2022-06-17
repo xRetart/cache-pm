@@ -1,36 +1,36 @@
 use {
     library::error::{Info, ParseArch, UnpackArchive, Newest},
-    std::{
-        fmt::{self, Display, Formatter},
-        io,
-    },
+    std::io,
     confy::ConfyError,
+    thiserror::Error,
 };
 
-#[derive(Debug)]
+#[derive(Error, Debug)]
 pub enum Error {
-    Io(io::Error),
-    Unpack(UnpackArchive),
-    ParseSpec(ParseArch),
-    SQLite3(sqlite3::Error),
-    Info(Info),
-    Newest(Newest),
-    Confy(ConfyError),
+    #[error("io: {0}")]
+    Io(#[from] io::Error),
+
+    #[error("unpacking: {0}")]
+    Unpack(#[from] UnpackArchive),
+
+    #[error("parsing specification: {0}")]
+    ParseSpec(#[from] ParseArch),
+
+    #[error("sqlite3: {0}")]
+    SQLite3(#[from] sqlite3::Error),
+
+    #[error("info: {0}")]
+    Info(#[from] Info),
+
+    #[error("newest: {0}")]
+    Newest(#[from] Newest),
+
+    #[error("confy: {0}")]
+    Confy(#[from] ConfyError),
+
+    #[error("installation script failed")]
     InstallScript,
+
+    #[error("package not found")]
     PkgNotFound,
-}
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Self::Io(e) => write!(f, "io: {}", e),
-            Self::Unpack(e) => write!(f, "unpacking: {}", e),
-            Self::ParseSpec(e) => write!(f, "parsing specification: {}", e),
-            Self::SQLite3(e) => write!(f, "sqlite3: {}", e),
-            Self::Info(e) => write!(f, "info: {}", e),
-            Self::Newest(e) => write!(f, "newest: {}", e),
-            Self::Confy(e) => write!(f, "confy: {}", e),
-            Self::InstallScript => write!(f, "installation script failed"),
-            Self::PkgNotFound => write!(f, "package not found"),
-        }
-    }
 }

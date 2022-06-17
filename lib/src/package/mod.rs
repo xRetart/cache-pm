@@ -43,8 +43,10 @@ impl Package {
     pub fn unpack<P: AsRef<Path>>(&self, spec: &Spec, dest: P) -> Result<(), error::Unpack> {
         self.distributions
             .get(spec)
-            .ok_or(error::Unpack::SpecNotFound)
-            .and_then(|build| build.decode(dest).map_err(|e| e.into()))
+            .ok_or(error::Unpack::SpecNotFound)?
+            .decode(dest)?;
+
+        Ok(())
     }
 }
 impl Display for Package {

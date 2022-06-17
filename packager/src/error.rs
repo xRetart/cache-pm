@@ -1,35 +1,35 @@
 use {
     library::error::{Append, Extract, ParseArch, Read, Unpack, UnpackArchive, Write},
-    std::{
-        fmt::{self, Display, Formatter},
-        io,
-        num::ParseIntError,
-    },
+    std::{io, num::ParseIntError},
+    thiserror::Error,
 };
 
+#[derive(Error, Debug)]
 pub enum Error {
-    Io(io::Error),
-    Read(Read),
-    Write(Write),
-    Append(Append),
-    Extract(Extract),
-    Unpack(Unpack),
-    UnpackArchive(UnpackArchive),
-    ParseArch(ParseArch),
-    ParseVersion(ParseIntError),
-}
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Self::Io(e) => write!(f, "io: {}", e),
-            Self::Read(e) => write!(f, "reading: {}", e),
-            Self::Write(e) => write!(f, "writing: {}", e),
-            Self::Append(e) => write!(f, "appending: {}", e),
-            Self::Extract(e) => write!(f, "extracting: {}", e),
-            Self::Unpack(e) => write!(f, "unpacking: {}", e),
-            Self::UnpackArchive(e) => write!(f, "unpacking archive: {}", e),
-            Self::ParseArch(e) => write!(f, "parsing architecture: {}", e),
-            Self::ParseVersion(e) => write!(f, "parsing version: {}", e),
-        }
-    }
+    #[error("io: {0}")]
+    Io(#[from] io::Error),
+
+    #[error("reading: {0}")]
+    Read(#[from] Read),
+
+    #[error("writing: {0}")]
+    Write(#[from] Write),
+
+    #[error("appending: {0}")]
+    Append(#[from] Append),
+
+    #[error("extracting: {0}")]
+    Extract(#[from] Extract),
+
+    #[error("unpacking: {0}")]
+    Unpack(#[from] Unpack),
+
+    #[error("unpacking archive: {0}")]
+    UnpackArchive(#[from] UnpackArchive),
+
+    #[error("parssing architecture: {0}")]
+    ParseArch(#[from] ParseArch),
+
+    #[error("parsing version: {0}")]
+    ParseVersion(#[from] ParseIntError),
 }

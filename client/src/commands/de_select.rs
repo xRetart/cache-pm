@@ -19,14 +19,13 @@ pub fn select(name: &str) -> Result<(), Error> {
         .read(true)
         .create(true)
         .append(true)
-        .open("/var/lib/dist/owned")
-        .map_err(Error::Io)?;
+        .open("/var/lib/dist/owned")?;
 
-    if is_selected(&file, name).map_err(Error::Io)? {
-        Ok(())
-    } else {
-        writeln!(file, "{}", name).map_err(Error::Io)
+    if !is_selected(&file, name)? {
+        writeln!(file, "{}", name)?;
     }
+
+    Ok(())
 }
 pub fn deselect(name: &str) -> Result<(), Error> {
     use std::{
@@ -41,21 +40,18 @@ pub fn deselect(name: &str) -> Result<(), Error> {
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
-        .open("/var/lib/dist/owned")
-        .map_err(Error::Io)?;
+        .open("/var/lib/dist/owned")?;
 
     let lines = BufReader::new(&file)
         .lines()
-        .collect::<io::Result<Vec<_>>>()
-        .map_err(Error::Io)?;
+        .collect::<io::Result<Vec<_>>>()?;
 
-    file.rewind()
-        .and_then(|()| {
-            lines
-                .iter()
-                .filter(|line| line != &name)
-                .try_for_each(|line| writeln!(file, "{}", line))
-        })
-        .and_then(|()| shrink_by(&mut file, name.len() as u64 + 1))
-        .map_err(Error::Io)
+    file.rewind()?;
+    lines
+        .iter()
+        .filter(|line| line != &name)
+        .try_for_each(|line| writeln!(file, "{}", line))?;
+    shrink_by(&mut file, name.len() as u64 + 1)?;
+
+    Ok(())
 }

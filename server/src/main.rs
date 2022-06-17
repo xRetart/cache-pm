@@ -6,14 +6,14 @@ use std::io;
 pub use {args::Args, error::Error};
 
 fn main() {
-    use {crate::error::report, quit::with_code};
+    use {log::error, quit::with_code};
 
     env_logger::init();
 
     let code = match result_main() {
         Ok(_) => 0,
         Err(e) => {
-            report(e);
+            error!("{}", e);
             1
         }
     };

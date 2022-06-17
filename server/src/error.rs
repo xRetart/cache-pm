@@ -1,30 +1,20 @@
 use {
     library::error::{ParseArch, ParseMetadata, Read},
-    std::{
-        fmt::{self, Display, Formatter},
-        io,
-    },
+    std::io,
+    thiserror::Error,
 };
 
-#[derive(Debug)]
+#[derive(Debug, Error)]
 pub enum Error {
-    Io(io::Error),
-    Finding(Read),
-    ParseSpec(ParseArch),
-    ParseMetadata(ParseMetadata),
-}
-impl Display for Error {
-    fn fmt(&self, f: &mut Formatter) -> fmt::Result {
-        match self {
-            Self::Io(e) => write!(f, "io: {}", e),
-            Self::Finding(e) => write!(f, "finding: {}", e),
-            Self::ParseSpec(e) => write!(f, "parsing specification: {}", e),
-            Self::ParseMetadata(e) => write!(f, "parsing metadata: {}", e),
-        }
-    }
-}
+    #[error("io: {0}")]
+    Io(#[from] io::Error),
 
-pub fn report<E: Display>(e: E) {
-    use log::error;
-    error!("{}", e);
+    #[error("finding: {0}")]
+    Finding(#[from] Read),
+
+    #[error("parsing specification: {0}")]
+    ParseSpec(#[from] ParseArch),
+
+    #[error("parsing metadata: {0}")]
+    ParseMetadata(#[from] ParseMetadata),
 }

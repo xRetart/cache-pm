@@ -22,14 +22,13 @@ impl Connection {
         use std::io::BufRead;
 
         let mut buf = String::new();
-        reader
-            .read_line(&mut buf)
-            .map_err(Error::Io)
-            .and_then(|_| buf.trim().parse().map_err(conv_err))
+        reader.read_line(&mut buf)?;
+        buf.trim().parse().map_err(conv_err)
     }
     pub fn send(&mut self, data: &[u8]) -> Result<(), Error> {
         use std::io::Write;
 
-        self.stream.write_all(data).map_err(Error::Io).map(|_| ())
+        self.stream.write_all(data)?;
+        Ok(())
     }
 }

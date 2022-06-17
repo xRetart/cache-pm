@@ -9,10 +9,7 @@ pub fn info(name: &str) -> Result<(), Error> {
         description,
         build_depend,
         run_depend,
-    } = core()
-        .map_err(Error::SQLite3)?
-        .info(name)
-        .map_err(Error::Info)?;
+    } = core()?.info(name)?;
 
     print!(
         "name: {}\nversion: {}\ndescription: {}\nbuild dependencies: {}\nrun dependencies: {}\n",

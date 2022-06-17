@@ -34,15 +34,11 @@ impl FromStr for Metadata {
 
         raw.split_once(SEPARATOR)
             .ok_or(ParseMetadata::Format)
-            .and_then(|(name, version)| {
-                version
-                    .parse()
-                    .map_err(ParseMetadata::Version)
-                    .map(|version| Self {
-                        name: name.to_owned(),
-                        version,
-                    })
-            })
+            .and_then(|(name, version)| Ok(Self {
+                    name: name.to_owned(),
+                    version: version.parse()?,
+                })
+            )
     }
 }
 

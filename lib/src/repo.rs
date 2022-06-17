@@ -28,7 +28,5 @@ where
 fn read_pkg<P: AsRef<Path>>(path: P) -> Result<Package, error::Read> {
     use {crate::Archive, std::fs::OpenOptions};
 
-    Archive::open(path, OpenOptions::new().read(true))
-        .map_err(|e| e.into())
-        .and_then(|mut archive| archive.read())
+    Archive::open(path, OpenOptions::new().read(true))?.read()
 }

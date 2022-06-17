@@ -28,7 +28,7 @@ fn result_main() -> Result<(), Error> {
         confy::load,
     };
 
-    let config: Config = load(APP_NAME).map_err(Error::Confy)?;
+    let config: Config = load(APP_NAME)?;
 
     let args = Args::parse();
     match args.command {

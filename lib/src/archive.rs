@@ -22,7 +22,9 @@ impl Archive {
         use {rkyv::to_bytes, std::io::Write};
 
         let serialized = to_bytes::<_, 8192>(package)?;
-        self.file.write_all(&serialized).map_err(|e| e.into())
+        self.file.write_all(&serialized)?;
+
+        Ok(())
     }
 
     /// Open the `Archive` at a `path` with `options`
@@ -61,14 +63,9 @@ impl Archive {
     /// # Errors
     /// Returns `lib::error::UnpackArchive::Read` if reading the `Package` from the file failed.
     /// Returns `lib::error::UnpackArchive::Package` if unpacking the `Package` failed.
-    pub fn unpack<P: AsRef<Path>>(
-        &mut self,
-        dest: P,
-        spec: &Spec,
-    ) -> Result<(), error::UnpackArchive> {
-        self.read()?
-            .unpack(spec, dest.as_ref())
-            .map_err(|e| e.into())
+    pub fn unpack<P: AsRef<Path>>(&mut self, dest: P, spec: &Spec) -> Result<(), error::UnpackArchive> {
+        self.read()?.unpack(spec, dest.as_ref())?;
+        Ok(())
     }
 
     /// Appends a `Dist` to the package in the `Archive`
@@ -83,6 +80,7 @@ impl Archive {
         package.distributions.insert(spec, build);
 
         self.file.rewind().map_err(error::Write::Io)?;
-        self.write(&package).map_err(|e| e.into())
+        self.write(&package)?;
+        Ok(())
     }
 }
