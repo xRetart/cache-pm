@@ -1,15 +1,15 @@
 mod de_select;
+mod files;
 mod info;
 mod install;
-mod uninstall;
 mod search;
-mod files;
+mod uninstall;
 
 pub use {
     de_select::{deselect, select},
+    files::files,
     info::info,
     install::install,
-    uninstall::uninstall,
     search::search,
-    files::files,
+    uninstall::uninstall,
 };

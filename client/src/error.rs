@@ -1,7 +1,7 @@
 use {
-    library::error::{Info, ParseArch, UnpackArchive, Query},
-    std::io,
     confy::ConfyError,
+    library::error::{Info, ParseArch, Query, UnpackArchive},
+    std::io,
     thiserror::Error,
 };
 

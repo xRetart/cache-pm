@@ -34,11 +34,12 @@ impl FromStr for Metadata {
 
         raw.split_once(SEPARATOR)
             .ok_or(ParseMetadata::Format)
-            .and_then(|(name, version)| Ok(Self {
+            .and_then(|(name, version)| {
+                Ok(Self {
                     name: name.to_owned(),
                     version: version.parse()?,
                 })
-            )
+            })
     }
 }
 

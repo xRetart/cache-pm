@@ -1,7 +1,7 @@
 use crate::Error;
 
 pub fn search(part: &str) -> Result<(), Error> {
-    use {try_traits::default::TryDefault, library::database::Core};
+    use {library::database::Core, try_traits::default::TryDefault};
 
     Core::try_default()?
         .search(part)

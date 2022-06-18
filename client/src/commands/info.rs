@@ -1,7 +1,10 @@
 use crate::Error;
 
 pub fn info(name: &str) -> Result<(), Error> {
-    use {try_traits::default::TryDefault, library::database::{Core, core::Info}};
+    use {
+        library::database::{core::Info, Core},
+        try_traits::default::TryDefault,
+    };
 
     let Info {
         name,

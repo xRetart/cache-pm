@@ -63,7 +63,11 @@ impl Archive {
     /// # Errors
     /// Returns `lib::error::UnpackArchive::Read` if reading the `Package` from the file failed.
     /// Returns `lib::error::UnpackArchive::Package` if unpacking the `Package` failed.
-    pub fn unpack<P: AsRef<Path>>(&mut self, dest: P, spec: &Spec) -> Result<(), error::UnpackArchive> {
+    pub fn unpack<P: AsRef<Path>>(
+        &mut self,
+        dest: P,
+        spec: &Spec,
+    ) -> Result<(), error::UnpackArchive> {
         self.read()?.unpack(spec, dest.as_ref())?;
         Ok(())
     }

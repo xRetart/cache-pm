@@ -3,7 +3,10 @@ use crate::Error;
 pub fn read(path: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
-    println!("{}", Archive::open(path, OpenOptions::new().read(true))?.read()?);
+    println!(
+        "{}",
+        Archive::open(path, OpenOptions::new().read(true))?.read()?
+    );
 
     Ok(())
 }
@@ -23,18 +26,14 @@ pub fn append(path: &str, build: String, spec: &str) -> Result<(), Error> {
     };
 
     Archive::open(path, OpenOptions::new().read(true).write(true))?
-        .append(
-            spec.parse()?,
-            Dir::encode(build, 9)?,
-        )?;
+        .append(spec.parse()?, Dir::encode(build, 9)?)?;
 
     Ok(())
 }
 pub fn unpack(source: &str, dest: &str, spec: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
-    Archive::open(source, OpenOptions::new().read(true))?
-        .unpack(dest, &spec.parse()?)?;
+    Archive::open(source, OpenOptions::new().read(true))?.unpack(dest, &spec.parse()?)?;
 
     Ok(())
 }

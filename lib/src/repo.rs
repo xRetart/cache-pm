@@ -1,5 +1,5 @@
 use {
-    crate::{package::metadata::Version, error, Package},
+    crate::{error, package::metadata::Version, Package},
     std::path::Path,
 };
 

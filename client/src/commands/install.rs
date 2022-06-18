@@ -1,4 +1,9 @@
-use {crate::{Config, Error}, library::package::metadata::Version, std::path::Path, tempfile::TempDir};
+use {
+    crate::{Config, Error},
+    library::package::metadata::Version,
+    std::path::Path,
+    tempfile::TempDir,
+};
 
 pub fn install(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     use crate::commands::select;
@@ -75,21 +80,18 @@ fn temp_dir() -> Result<TempDir, Error> {
 fn unpack_archive(path: &Path, dest: &Path, spec: &str) -> Result<(), Error> {
     use {library::Archive, std::fs::OpenOptions};
 
-    Archive::open(path, OpenOptions::new().read(true))?
-        .unpack(dest, &spec.parse()?)?;
+    Archive::open(path, OpenOptions::new().read(true))?.unpack(dest, &spec.parse()?)?;
 
     Ok(())
 }
 fn register(dir: &Path, name: &str, version: &Version) -> Result<(), Error> {
-    use {try_traits::default::TryDefault, library::database::Register, std::fs::read_to_string};
-
+    use {library::database::Register, std::fs::read_to_string, try_traits::default::TryDefault};
 
     const FILENAME_REGISTER: &str = "register";
 
     let files = read_to_string(dir.join(FILENAME_REGISTER))?;
 
-    Register::try_default()?
-        .add(name, version, files)?;
+    Register::try_default()?.add(name, version, files)?;
 
     Ok(())
 }

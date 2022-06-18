@@ -29,24 +29,36 @@ impl Register {
     {
         let (name, files) = (name.as_ref(), files.as_ref());
 
-        self.conn.execute(
-            format!("INSERT INTO register (name, version, files) VALUES ('{}', '{}', '{}')", name, version, files)
-        )
+        self.conn.execute(format!(
+            "INSERT INTO register (name, version, files) VALUES ('{}', '{}', '{}')",
+            name, version, files
+        ))
     }
 
     /// Remove entry from the `register` with `name`.
     /// # Errors
     /// Returns `sqlite3::Error` when execution of sql statement failed.
     pub fn remove<N: AsRef<str>>(&mut self, name: N) -> sqlite3::Result<()> {
-        self.conn.execute(format!("DELETE FROM register WHERE name = '{}'", name.as_ref()))
+        self.conn.execute(format!(
+            "DELETE FROM register WHERE name = '{}'",
+            name.as_ref()
+        ))
     }
 
     /// Get files owned by package called `name`
+    /// # Errors
+    /// Returns `library::errror::Query::SQLite3` when preparing the sql statement failed.
+    /// Returns `library::errror::Query::NotFound` when the statement returns nothing.
+    /// Returns `library::errror::Query::InvalidColumn` when the version in the database is not in
+    /// text format.
     pub fn files<N: AsRef<str>>(&mut self, name: N) -> Result<String, error::Query> {
-        let statement = format!("SELECT files FROM register WHERE name = '{}'", name.as_ref());
+        let statement = format!(
+            "SELECT files FROM register WHERE name = '{}'",
+            name.as_ref()
+        );
 
-        self.conn.
-            prepare(statement)?
+        self.conn
+            .prepare(statement)?
             .cursor()
             .next()?
             .ok_or(error::Query::NotFound)?[0]

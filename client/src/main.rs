@@ -1,6 +1,6 @@
 mod args;
-mod config;
 mod commands;
+mod config;
 mod error;
 
 pub use {config::Config, error::Error};
@@ -24,7 +24,7 @@ fn result_main() -> Result<(), Error> {
     use {
         args::{Args, Command},
         clap::Parser,
-        commands::{deselect, info, install, uninstall, search, select, files},
+        commands::{deselect, files, info, install, search, select, uninstall},
         confy::load,
     };
 
