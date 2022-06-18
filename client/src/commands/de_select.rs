@@ -19,7 +19,7 @@ pub fn select(name: &str) -> Result<(), Error> {
         .read(true)
         .create(true)
         .append(true)
-        .open("/var/lib/dist/owned")?;
+        .open("/var/lib/dist/selected")?;
 
     if !is_selected(&file, name)? {
         writeln!(file, "{}", name)?;
@@ -40,7 +40,7 @@ pub fn deselect(name: &str) -> Result<(), Error> {
     let mut file = OpenOptions::new()
         .read(true)
         .write(true)
-        .open("/var/lib/dist/owned")?;
+        .open("/var/lib/dist/selected")?;
 
     let lines = BufReader::new(&file)
         .lines()
