@@ -29,4 +29,7 @@ pub enum Command {
 
     /// remove package from owned list
     Deselect { name: String },
+
+    /// get list of files installed by package
+    Files { name: String },
 }

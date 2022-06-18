@@ -1,5 +1,5 @@
 use {
-    library::error::{Info, ParseArch, UnpackArchive, Newest},
+    library::error::{Info, ParseArch, UnpackArchive, Query},
     std::io,
     confy::ConfyError,
     thiserror::Error,
@@ -22,8 +22,8 @@ pub enum Error {
     #[error("info: {0}")]
     Info(#[from] Info),
 
-    #[error("newest: {0}")]
-    Newest(#[from] Newest),
+    #[error("querying: {0}")]
+    Query(#[from] Query),
 
     #[error("confy: {0}")]
     Confy(#[from] ConfyError),

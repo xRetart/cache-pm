@@ -4,4 +4,4 @@ pub mod error;
 pub mod package;
 pub mod repo;
 
-pub use {archive::Archive, database::Database, package::Package};
+pub use {archive::Archive, package::Package};

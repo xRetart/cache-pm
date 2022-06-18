@@ -24,7 +24,7 @@ fn result_main() -> Result<(), Error> {
     use {
         args::{Args, Command},
         clap::Parser,
-        commands::{deselect, info, install, search, select},
+        commands::{deselect, info, install, search, select, files},
         confy::load,
     };
 
@@ -37,5 +37,6 @@ fn result_main() -> Result<(), Error> {
         Command::Info { name } => info(&name),
         Command::Select { name } => select(&name),
         Command::Deselect { name } => deselect(&name),
+        Command::Files { name } => files(&name),
     }
 }

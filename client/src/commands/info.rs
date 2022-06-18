@@ -1,7 +1,7 @@
 use crate::Error;
 
 pub fn info(name: &str) -> Result<(), Error> {
-    use library::database::{core, Info};
+    use {try_traits::default::TryDefault, library::database::{Core, core::Info}};
 
     let Info {
         name,
@@ -9,7 +9,7 @@ pub fn info(name: &str) -> Result<(), Error> {
         description,
         build_depend,
         run_depend,
-    } = core()?.info(name)?;
+    } = Core::try_default()?.info(name)?;
 
     print!(
         "name: {}\nversion: {}\ndescription: {}\nbuild dependencies: {}\nrun dependencies: {}\n",

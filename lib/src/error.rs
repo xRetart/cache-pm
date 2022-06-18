@@ -100,7 +100,7 @@ pub enum Info {
 
 /// An error that can occur while retrieving the newest version for a package from the database
 #[derive(Debug, Error)]
-pub enum Newest {
+pub enum Query {
     #[error("sqlite3: {0}")]
     SQLite3(#[from] sqlite3::Error),
 
@@ -108,7 +108,7 @@ pub enum Newest {
     Version(#[from] <Version as FromStr>::Err),
 
     #[error("Package could not be found.")]
-    PackageNotFound,
+    NotFound,
 
     #[error("Column is invalid.")]
     InvalidColumn,

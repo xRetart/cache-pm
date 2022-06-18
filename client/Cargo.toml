@@ -13,3 +13,4 @@ sqlite3 = "0.24.0"
 confy = "0.4.0"
 serde = { version = "1.0.137", features = ["derive"] }
 thiserror = "1.0.31"
+try-traits = "0.1.1"

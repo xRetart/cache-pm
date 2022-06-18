@@ -1,4 +1,4 @@
-use {crate::{Config, Error}, std::path::Path, tempfile::TempDir};
+use {crate::{Config, Error}, library::package::metadata::Version, std::path::Path, tempfile::TempDir};
 
 pub fn install(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     use crate::commands::select;
@@ -29,14 +29,15 @@ fn locally(path: &Path, spec: &str) -> Result<(), Error> {
 /// Returns `Error::Unpack` if unpacking the archive to the temporary directory fails.
 fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     use {
-        library::{database::core, package::Dir},
+        library::{database::Core, package::Dir},
         std::{
             io::{Read, Write},
             net::TcpStream,
         },
+        try_traits::default::TryDefault,
     };
 
-    let version = core()?.newest(name)?;
+    let version = Core::try_default()?.newest(name)?;
 
     let server = config.servers[0];
     let request = format!("{}:{}\n{}\n", name, version, spec);
@@ -50,14 +51,15 @@ fn globally(name: &str, spec: &str, config: &Config) -> Result<(), Error> {
     // package was found
     if data[0] == 1 {
         let dir = temp_dir()?;
+        let path = dir.path();
 
         // remove indicator byte
         data.remove(0);
         let build = Dir { data };
 
-        build.decode(dir.path())?;
-
-        install_script(dir.path())?;
+        build.decode(path)?;
+        register(path, name, &version)?;
+        install_script(path)?;
 
         Ok(())
     } else {
@@ -78,15 +80,28 @@ fn unpack_archive(path: &Path, dest: &Path, spec: &str) -> Result<(), Error> {
 
     Ok(())
 }
+fn register(dir: &Path, name: &str, version: &Version) -> Result<(), Error> {
+    use {try_traits::default::TryDefault, library::database::Register, std::fs::read_to_string};
+
+
+    const FILENAME_REGISTER: &str = "register";
+
+    let files = read_to_string(dir.join(FILENAME_REGISTER))?;
+
+    Register::try_default()?
+        .add(name, version, files)?;
+
+    Ok(())
+}
 fn install_script(dir: &Path) -> Result<(), Error> {
     use std::{env::set_current_dir, process::Command};
-    const INSTALL_SCRIPT_NAME: &str = "install";
+    const FILENAME_INSTALL: &str = "install";
 
     // `cd` into directory
     set_current_dir(dir)?;
 
     // run and wait for script to finish
-    Command::new(dir.join(INSTALL_SCRIPT_NAME))
+    Command::new(dir.join(FILENAME_INSTALL))
         .spawn()
         .and_then(|mut child| child.wait())?
         .success()

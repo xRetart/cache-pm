@@ -1,9 +1,9 @@
 use crate::Error;
 
 pub fn search(part: &str) -> Result<(), Error> {
-    use library::database::core;
+    use {try_traits::default::TryDefault, library::database::Core};
 
-    core()?
+    Core::try_default()?
         .search(part)
         .and_then(Iterator::collect::<sqlite3::Result<Vec<_>>>)
         .map(|finds| {

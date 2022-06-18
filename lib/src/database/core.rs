@@ -2,14 +2,15 @@ use {
     crate::{package::metadata::Version, error},
     sqlite3::{Connection, Cursor},
     std::path::Path,
+    try_traits::default::TryDefault,
 };
 
-/// Wrapper over a `sqlite3` database located in the filesystem.
-pub struct Database {
+/// Wrapper over a "core" `sqlite3` database.
+pub struct Core {
     conn: Connection,
 }
-impl Database {
-    /// Opens the database located at `path`
+impl Core {
+    /// Opens the core database located at `path`
     /// # Errors
     /// Returns `sqlite3::Error` if opening underlying connection failed.
     pub fn open<P: AsRef<Path>>(path: P) -> sqlite3::Result<Self> {
@@ -60,23 +61,26 @@ impl Database {
     }
 
     /// Gets the newest version of the package in the database.
-    pub fn newest<N: AsRef<str>>(&self, name: N) -> Result<Version, error::Newest> {
+    pub fn newest<N: AsRef<str>>(&self, name: N) -> Result<Version, error::Query> {
         let statement = format!("SELECT version FROM packages WHERE name = '{}'", name.as_ref());
 
         let version = self.conn.
             prepare(statement)?
             .cursor()
             .next()?
-            .ok_or(error::Newest::PackageNotFound)?[0]
+            .ok_or(error::Query::NotFound)?[0]
             .as_string()
-            .ok_or(error::Newest::InvalidColumn)?
+            .ok_or(error::Query::InvalidColumn)?
             .parse()?;
 
         Ok(version)
     }
 }
-pub fn core() -> sqlite3::Result<Database> {
-    Database::open("/var/db/dist/core.db")
+impl TryDefault for Core {
+    type Error = sqlite3::Error;
+    fn try_default() -> Result<Self, Self::Error> {
+        Core::open("/var/db/dist/core.db")
+    }
 }
 
 /// Iterator over the `name` column of the `packages` table in the database.
