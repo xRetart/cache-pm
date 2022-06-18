@@ -18,6 +18,9 @@ pub enum Command {
         spec: String,
     },
 
+    /// uninstall package
+    Uninstall { name: String },
+
     /// search for a package containing `part`
     Search { part: String },
 

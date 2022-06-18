@@ -34,6 +34,13 @@ impl Register {
         )
     }
 
+    /// Remove entry from the `register` with `name`.
+    /// # Errors
+    /// Returns `sqlite3::Error` when execution of sql statement failed.
+    pub fn remove<N: AsRef<str>>(&mut self, name: N) -> sqlite3::Result<()> {
+        self.conn.execute(format!("DELETE FROM register WHERE name = '{}'", name.as_ref()))
+    }
+
     /// Get files owned by package called `name`
     pub fn files<N: AsRef<str>>(&mut self, name: N) -> Result<String, error::Query> {
         let statement = format!("SELECT files FROM register WHERE name = '{}'", name.as_ref());
