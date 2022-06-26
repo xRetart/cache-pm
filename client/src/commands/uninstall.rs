@@ -6,7 +6,7 @@ pub fn uninstall(name: &str) -> Result<(), Error> {
     let mut register = Register::try_default()?;
 
     for file in register.files(name)?.lines() {
-        remove_file(dbg!(file))?;
+        remove_file(file)?;
     }
 
     register.remove(name)?;
