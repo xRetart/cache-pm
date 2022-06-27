@@ -24,7 +24,7 @@ fn result_main() -> Result<(), Error> {
     use {
         args::{Args, Command},
         clap::Parser,
-        commands::{deselect, files, info, install, search, select, uninstall},
+        commands::{deselect, files, info, install, list, select, uninstall},
         confy::load,
     };
 
@@ -34,7 +34,7 @@ fn result_main() -> Result<(), Error> {
     match args.command {
         Command::Install { name, spec } => install(&name, &spec, &config),
         Command::Uninstall { name } => uninstall(&name),
-        Command::Search { part } => search(&part),
+        Command::List { pattern } => list(&pattern),
         Command::Info { name } => info(&name),
         Command::Select { name } => select(&name),
         Command::Deselect { name } => deselect(&name),

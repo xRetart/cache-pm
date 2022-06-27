@@ -2,7 +2,7 @@ mod de_select;
 mod files;
 mod info;
 mod install;
-mod search;
+mod list;
 mod uninstall;
 
 pub use {
@@ -10,6 +10,6 @@ pub use {
     files::files,
     info::info,
     install::install,
-    search::search,
+    list::list,
     uninstall::uninstall,
 };

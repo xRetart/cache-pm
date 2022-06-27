@@ -21,8 +21,11 @@ pub enum Command {
     /// uninstall package
     Uninstall { name: String },
 
-    /// search for a package containing `part`
-    Search { part: String },
+    /// list all packages conforming to `pattern`
+    List {
+        #[clap(default_value = "")]
+        pattern: String
+    },
 
     /// get information about package called `name`
     Info { name: String },

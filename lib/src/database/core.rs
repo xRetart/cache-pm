@@ -18,14 +18,17 @@ impl Core {
 
         open(path).map(|conn| Self { conn })
     }
-    /// Searches for a packages containing `part` in the `packages` table
+    /// Lists packages conforming to `pattern` in the `packages` table
     /// # Errors
     /// Returns `sqlite3::Error` if preparing the sql statement failed.
-    pub fn search<P: AsRef<str>>(&self, part: P) -> sqlite3::Result<NameIter> {
-        let statement = format!(
-            "SELECT name FROM packages WHERE name LIKE '%{}%'",
-            part.as_ref()
-        );
+    pub fn list<P: AsRef<str>>(&self, pattern: P) -> sqlite3::Result<NameIter> {
+        let pattern = pattern.as_ref();
+
+        let mut statement = "SELECT name FROM packages".to_owned();
+
+        if !pattern.is_empty() {
+            statement += format!(" WHERE name LIKE '%{}%'", pattern).as_str();
+        }
 
         self.conn.prepare(statement).map(|statement| NameIter {
             cursor: statement.cursor(),

@@ -1,10 +1,10 @@
 use crate::Error;
 
-pub fn search(part: &str) -> Result<(), Error> {
+pub fn list(pattern: &str) -> Result<(), Error> {
     use {library::database::Core, try_traits::default::TryDefault};
 
     Core::try_default()?
-        .search(part)
+        .list(pattern)
         .and_then(Iterator::collect::<sqlite3::Result<Vec<_>>>)
         .map(|finds| {
             for find in finds {
